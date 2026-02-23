@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  TRANSFERRED
+}
+
+model User {
+  id                String   @id @default(uuid())
+  role              Role
+  email             String?  @unique
+  admissionNumber   String?  @unique
+  passwordHash      String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  student           Student?
+  teacher           Teacher?
+
+  markedAttendance  Attendance[] @relation("MarkedBy")
+
+  createdNotices    Notice[]
+}
+
+model Student {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  admissionNumber String   @unique
+  fatherName      String
+  motherName      String
+  phone           String
+  address         String
+  dateOfBirth     DateTime
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id])
+  enrollments     Enrollment[]
+
+  @@index([admissionNumber])
+}
+
+model Teacher {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  qualification String
+  salary        Decimal
+  joiningDate   DateTime
+
+  user          User     @relation(fields: [userId], references: [id])
+  assignments   TeacherAssignment[]
+  salaryPayments SalaryPayment[]
+  homework      Homework[]
+}
+
+model AcademicYear {
+  id          String   @id @default(uuid())
+  yearLabel   String   @unique
+  isCurrent   Boolean  @default(false)
+
+  classes     Class[]
+  enrollments Enrollment[]
+  assignments TeacherAssignment[]
+  homework    Homework[]
+}
+
+model Class {
+  id              String   @id @default(uuid())
+  name            String
+  academicYearId  String
+
+  academicYear    AcademicYear @relation(fields: [academicYearId], references: [id])
+  sections        Section[]
+  subjects        Subject[]
+  enrollments     Enrollment[]
+  assignments     TeacherAssignment[]
+  homework        Homework[]
+
+  @@index([academicYearId])
+  @@unique([name, academicYearId])
+}
+
+
+model Section {
+  id        String @id @default(uuid())
+  name      String
+  classId   String
+
+  class     Class @relation(fields: [classId], references: [id])
+  enrollments Enrollment[]
+  assignments TeacherAssignment[]
+  homework   Homework[]
+
+  @@index([classId])
+  @@unique([name, classId])
+}
+
+
+model Enrollment {
+  id              String   @id @default(uuid())
+  studentId       String
+  classId         String
+  sectionId       String
+  academicYearId  String
+  rollNumber      Int
+  status          EnrollmentStatus @default(ACTIVE)
+  createdAt       DateTime @default(now())
+
+  student         Student       @relation(fields: [studentId], references: [id])
+  class           Class         @relation(fields: [classId], references: [id])
+  section         Section       @relation(fields: [sectionId], references: [id])
+  academicYear    AcademicYear  @relation(fields: [academicYearId], references: [id])
+  attendance      Attendance[]
+
+  @@unique([studentId, academicYearId])
+  @@unique([classId, sectionId, rollNumber, academicYearId])
+  @@index([studentId])
+  @@index([classId])
+  @@index([academicYearId])
+}
+
+model Subject {
+  id        String @id @default(uuid())
+  name      String
+  classId   String
+
+  class     Class @relation(fields: [classId], references: [id])
+  assignments TeacherAssignment[]
+
+  @@index([classId])
+}
+
+model TeacherAssignment {
+  id              String @id @default(uuid())
+  teacherId       String
+  subjectId       String
+  classId         String
+  sectionId       String
+  academicYearId  String
+
+  teacher         Teacher @relation(fields: [teacherId], references: [id])
+  subject         Subject @relation(fields: [subjectId], references: [id])
+  class           Class   @relation(fields: [classId], references: [id])
+  section         Section @relation(fields: [sectionId], references: [id])
+  academicYear    AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  @@index([teacherId])
+  @@index([classId])
+  @@index([academicYearId])
+}
+
+model Attendance {
+  id             String   @id @default(uuid())
+  enrollmentId   String
+  date           DateTime
+  status         AttendanceStatus
+  markedById     String
+  createdAt      DateTime @default(now())
+
+  enrollment     Enrollment @relation(fields: [enrollmentId], references: [id])
+  markedBy       User       @relation("MarkedBy", fields: [markedById], references: [id])
+
+  @@unique([enrollmentId, date])
+  @@index([enrollmentId])
+  @@index([date])
+}
+
+model Homework {
+  id              String   @id @default(uuid())
+  teacherId       String
+  classId         String
+  sectionId       String
+  academicYearId  String
+  title           String
+  description     String
+  dueDate         DateTime
+  createdAt       DateTime @default(now())
+
+  teacher         Teacher @relation(fields: [teacherId], references: [id])
+  class           Class   @relation(fields: [classId], references: [id])
+  section         Section @relation(fields: [sectionId], references: [id])
+  academicYear    AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  @@index([classId])
+  @@index([academicYearId])
+}
+
+
+model Notice {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  createdById String
+  createdAt   DateTime @default(now())
+
+  createdBy   User @relation(fields: [createdById], references: [id])
+}
+
+
+model SalaryPayment {
+  id        String   @id @default(uuid())
+  teacherId String
+  month     Int
+  year      Int
+  amount    Decimal
+  createdAt DateTime @default(now())
+
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+
+  @@unique([teacherId, month, year])
+}
