@@ -40,7 +40,7 @@ export async function getStudents(search?: string) {
             },
             orderBy: {
                 name: 'asc'
-            }
+            } as any
         });
 
         // Transform into Student-centric objects for the UI

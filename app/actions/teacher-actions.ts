@@ -25,7 +25,7 @@ export async function getTeachers(search: string = "") {
             },
             orderBy: {
                 name: 'asc'
-            }
+            } as any
         });
 
         // Transform into Teacher-centric objects
