@@ -6,15 +6,74 @@ const prisma = new PrismaClient();
 async function main() {
     console.log("🌱 Seeding database...");
 
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    await prisma.academicYear.updateMany({
+        data: { isCurrent: false },
+    });
+
+    const academicYear = await prisma.academicYear.upsert({
+        where: { yearLabel: "2025-2026" },
+        update: { isCurrent: true },
+        create: {
+            yearLabel: "2025-2026",
+            isCurrent: true,
+        },
+    });
+
+    console.log("✅ Academic Year ready");
+
+    for (let i = 1; i <= 10; i++) {
+        await prisma.class.upsert({
+            where: {
+                name_academicYearId: {
+                    name: `${i}`,
+                    academicYearId: academicYear.id,
+                },
+            },
+            update: {},
+            create: {
+                name: `${i}`,
+                academicYearId: academicYear.id,
+            },
+        });
+    }
+
+    console.log("✅ Classes ready");
+
+
+    const classes = await prisma.class.findMany({
+        where: { academicYearId: academicYear.id },
+    });
+
+    for (const cls of classes) {
+        for (const sectionName of ["A", "B"]) {
+            await prisma.section.upsert({
+                where: {
+                    name_classId: {
+                        name: sectionName,
+                        classId: cls.id,
+                    },
+                },
+                update: {},
+                create: {
+                    name: sectionName,
+                    classId: cls.id,
+                },
+            });
+        }
+    }
+
+    console.log("✅ Sections ready");
+
+    const adminPassword = await bcrypt.hash("admin123", 10);
 
     await prisma.user.upsert({
         where: { email: "admin@school.com" },
         update: {},
         create: {
             role: Role.ADMIN,
+            name: "System Admin",
             email: "admin@school.com",
-            passwordHash: hashedPassword,
+            passwordHash: adminPassword,
             isActive: true,
         },
     });
@@ -28,6 +87,7 @@ async function main() {
         update: {},
         create: {
             role: Role.TEACHER,
+            name: "Teacher 1",
             email: "teacher1@school.com",
             passwordHash: teacherPassword,
             isActive: true,
@@ -54,6 +114,7 @@ async function main() {
         update: {},
         create: {
             role: Role.STUDENT,
+            name: "Student 1",
             admissionNumber: "STU001",
             passwordHash: studentPassword,
             isActive: true,
@@ -74,20 +135,17 @@ async function main() {
         },
     });
 
-    const currentYear = await prisma.academicYear.findFirst({
-        where: { isCurrent: true },
-    });
     const class1 = await prisma.class.findFirst({
         where: {
             name: "1",
-            academicYearId: currentYear?.id,
+            academicYearId: academicYear.id,
         },
     });
 
     const sectionA = await prisma.section.findFirst({
         where: {
             name: "A",
-            classId: class1?.id,
+            classId: class1!.id,
         },
     });
 
@@ -95,7 +153,7 @@ async function main() {
         where: {
             studentId_academicYearId: {
                 studentId: student.id,
-                academicYearId: currentYear!.id,
+                academicYearId: academicYear.id,
             },
         },
         update: {},
@@ -103,73 +161,12 @@ async function main() {
             studentId: student.id,
             classId: class1!.id,
             sectionId: sectionA!.id,
-            academicYearId: currentYear!.id,
+            academicYearId: academicYear.id,
             rollNumber: 1,
         },
     });
 
     console.log("✅ Test Student ready");
-
-    await prisma.academicYear.updateMany({
-        data: { isCurrent: false },
-    });
-
-    const academicYear = await prisma.academicYear.upsert({
-        where: { yearLabel: "2025-2026" },
-        update: {
-            isCurrent: true,
-        },
-        create: {
-            yearLabel: "2025-2026",
-            isCurrent: true,
-        },
-    });
-
-    console.log("✅ Academic Year ready");
-
-
-    for (let i = 1; i <= 10; i++) {
-        await prisma.class.upsert({
-            where: {
-                name_academicYearId: {
-                    name: `${i}`,
-                    academicYearId: academicYear.id,
-                },
-            },
-            update: {},
-            create: {
-                name: `${i}`,
-                academicYearId: academicYear.id,
-            },
-        });
-    }
-
-    console.log("✅ Classes 1–10 ready");
-
-
-    const classes = await prisma.class.findMany({
-        where: { academicYearId: academicYear.id },
-    });
-
-    for (const cls of classes) {
-        for (const sectionName of ["A", "B"]) {
-            await prisma.section.upsert({
-                where: {
-                    name_classId: {
-                        name: sectionName,
-                        classId: cls.id,
-                    },
-                },
-                update: {},
-                create: {
-                    name: sectionName,
-                    classId: cls.id,
-                },
-            });
-        }
-    }
-
-    console.log("✅ Sections A & B ready");
 
     console.log("🎉 Seeding complete!");
 }

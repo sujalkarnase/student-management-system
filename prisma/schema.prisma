@@ -27,6 +27,7 @@ enum EnrollmentStatus {
 model User {
   id                String   @id @default(uuid())
   role              Role
+  name              String
   email             String?  @unique
   admissionNumber   String?  @unique
   passwordHash      String
