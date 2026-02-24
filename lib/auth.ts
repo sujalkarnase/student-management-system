@@ -47,6 +47,7 @@ export const authOptions: NextAuthOptions = {
                     id: user.id,
                     role: user.role,
                     email: user.email,
+                    name: user.name,
                 };
             },
         }),
@@ -56,6 +57,7 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user }) {
             if (user) {
                 token.role = (user as any).role;
+                token.name = (user as any).name;
             }
             return token;
         },
@@ -66,6 +68,7 @@ export const authOptions: NextAuthOptions = {
                     ...session.user,
                     id: token.sub!,
                     role: token.role as string,
+                    name: token.name as string,
                 };
             }
             return session;
