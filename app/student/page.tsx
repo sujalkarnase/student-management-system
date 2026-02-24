@@ -18,7 +18,6 @@ import {
 export default function StudentDashboard() {
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
-            {/* Hero Banner Section */}
             <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -59,7 +58,6 @@ export default function StudentDashboard() {
                         </div>
                         <p className="text-slate-400 font-medium text-sm text-center">Interactive course viewer coming soon...</p>
 
-                        {/* Interactive status floating card */}
                         <motion.div
                             initial={{ x: 20, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
@@ -77,14 +75,11 @@ export default function StudentDashboard() {
                     </div>
                 </div>
 
-                {/* Decorative background blobs */}
                 <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-[80px] translate-x-1/2 -translate-y-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-100 rounded-full blur-[60px] -translate-x-1/4 translate-y-1/4"></div>
             </motion.section>
 
-            {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Upcoming Classes Card */}
                 <motion.section
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -123,7 +118,6 @@ export default function StudentDashboard() {
                     </div>
                 </motion.section>
 
-                {/* Grades Overview Card */}
                 <motion.section
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -178,7 +172,6 @@ export default function StudentDashboard() {
                     </div>
                 </motion.section>
 
-                {/* Assignments Due Card */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -215,7 +208,6 @@ export default function StudentDashboard() {
                     </div>
                 </motion.section>
 
-                {/* Resource Library Card */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -248,7 +240,6 @@ export default function StudentDashboard() {
                 </motion.section>
             </div>
 
-            {/* Notification System Coming Soon */}
             <motion.section
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
