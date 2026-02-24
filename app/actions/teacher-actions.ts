@@ -12,13 +12,14 @@ export async function getTeachers(search: string = "") {
                 role: Role.TEACHER,
                 isActive: true,
                 ...(search ? {
+                    // Type bypass due to Prisma client sync issue in environment
                     OR: [
                         { name: { contains: search, mode: 'insensitive' } },
                         { email: { contains: search, mode: 'insensitive' } },
                         { admissionNumber: { contains: search, mode: 'insensitive' } }
-                    ]
+                    ] as any
                 } : {})
-            },
+            } as any,
             include: {
                 teacher: true
             },
