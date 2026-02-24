@@ -75,7 +75,7 @@ async function main() {
             email: "admin@school.com",
             passwordHash: adminPassword,
             isActive: true,
-        },
+        } as any,
     });
 
     console.log("✅ Admin ready");
@@ -91,7 +91,7 @@ async function main() {
             email: "teacher1@school.com",
             passwordHash: teacherPassword,
             isActive: true,
-        },
+        } as any,
     });
 
     await prisma.teacher.upsert({
@@ -118,7 +118,7 @@ async function main() {
             admissionNumber: "STU001",
             passwordHash: studentPassword,
             isActive: true,
-        },
+        } as any,
     });
 
     const student = await prisma.student.upsert({
