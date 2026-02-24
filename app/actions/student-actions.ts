@@ -9,11 +9,16 @@ export async function getStudents(search?: string) {
     try {
         const students = await prisma.student.findMany({
             where: search ? {
-                OR: [
-                    { admissionNumber: { contains: search, mode: 'insensitive' } },
-                    { user: { name: { contains: search, mode: 'insensitive' } } },
-                ]
-            } : {},
+                user: {
+                    OR: [
+                        { name: { contains: search, mode: 'insensitive' } },
+                        { admissionNumber: { contains: search, mode: 'insensitive' } },
+                    ],
+                    isActive: true
+                }
+            } : {
+                user: { isActive: true }
+            },
             include: {
                 user: true,
                 enrollments: {

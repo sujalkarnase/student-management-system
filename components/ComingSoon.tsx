@@ -8,9 +8,10 @@ interface ComingSoonProps {
     title: string;
     icon: LucideIcon;
     description: string;
+    featureName?: string;
 }
 
-export default function ComingSoon({ title, icon: Icon, description }: ComingSoonProps) {
+export default function ComingSoon({ title, icon: Icon, description, featureName }: ComingSoonProps) {
     return (
         <div className="max-w-4xl mx-auto py-20 px-4">
             <motion.div
