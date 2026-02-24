@@ -65,7 +65,7 @@ export async function createTeacher(formData: any) {
                     admissionNumber: employeeId,
                     passwordHash: hashedPassword,
                     role: Role.TEACHER,
-                },
+                } as any,
             });
 
             const teacher = await tx.teacher.create({
@@ -111,12 +111,12 @@ export async function updateTeacher(id: string, formData: any) {
             if (!teacher) throw new Error("Teacher not found");
 
             await tx.user.update({
-                where: { id: teacher.userId },
+                where: { id: teacher.userId } as any,
                 data: {
                     name,
                     email: email || null,
                     admissionNumber: employeeId,
-                },
+                } as any,
             });
 
             await tx.teacher.update({
@@ -147,8 +147,8 @@ export async function deleteTeacher(id: string) {
         if (!teacher) throw new Error("Teacher not found");
 
         await prisma.user.update({
-            where: { id: teacher.userId },
-            data: { isActive: false }
+            where: { id: teacher.userId } as any,
+            data: { isActive: false } as any
         });
 
         revalidatePath("/admin/teachers");

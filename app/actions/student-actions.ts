@@ -83,7 +83,7 @@ export async function createStudent(formData: any) {
                     admissionNumber,
                     passwordHash: hashedPassword,
                     role: Role.STUDENT,
-                },
+                } as any,
             });
 
             const student = await tx.student.create({
@@ -149,12 +149,12 @@ export async function updateStudent(id: string, formData: any) {
             if (!student) throw new Error("Student not found");
 
             await tx.user.update({
-                where: { id: student.userId },
+                where: { id: student.userId } as any,
                 data: {
                     name,
                     email: email || null,
                     admissionNumber,
-                },
+                } as any,
             });
 
             await tx.student.update({
@@ -214,8 +214,8 @@ export async function deleteStudent(id: string) {
         if (!student) throw new Error("Student not found");
 
         await prisma.user.update({
-            where: { id: student.userId },
-            data: { isActive: false }
+            where: { id: student.userId } as any,
+            data: { isActive: false } as any
         });
 
         revalidatePath("/admin/students");
