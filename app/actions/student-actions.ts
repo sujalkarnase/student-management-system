@@ -7,37 +7,49 @@ import { revalidatePath } from "next/cache";
 
 export async function getStudents(search?: string) {
     try {
-        const students = await prisma.student.findMany({
-            where: search ? {
-                user: {
+        const users = await prisma.user.findMany({
+            where: {
+                role: Role.STUDENT,
+                isActive: true,
+                ...(search ? {
                     OR: [
                         { name: { contains: search, mode: 'insensitive' } },
                         { admissionNumber: { contains: search, mode: 'insensitive' } },
-                    ],
-                    isActive: true
-                }
-            } : {
-                user: { isActive: true }
+                        { email: { contains: search, mode: 'insensitive' } },
+                    ]
+                } : {})
             },
             include: {
-                user: true,
-                enrollments: {
+                student: {
                     include: {
-                        class: true,
-                        section: true,
-                        academicYear: true,
-                    },
-                    where: {
-                        academicYear: {
-                            isCurrent: true
+                        enrollments: {
+                            include: {
+                                class: true,
+                                section: true,
+                                academicYear: true,
+                            },
+                            where: {
+                                academicYear: {
+                                    isCurrent: true
+                                }
+                            }
                         }
                     }
                 }
             },
             orderBy: {
-                createdAt: 'desc'
+                name: 'asc'
             }
         });
+
+        // Transform into Student-centric objects for the UI
+        const students = users
+            .filter(u => u.student) // Ensure they have a student record
+            .map(u => ({
+                ...u.student,
+                user: u
+            }));
+
         return { success: true, data: students };
     } catch (error) {
         console.error("Failed to fetch students:", error);

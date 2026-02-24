@@ -7,26 +7,34 @@ import { Role } from "@prisma/client";
 
 export async function getTeachers(search: string = "") {
     try {
-        const teachers = await prisma.teacher.findMany({
+        const users = await prisma.user.findMany({
             where: {
-                user: {
+                role: Role.TEACHER,
+                isActive: true,
+                ...(search ? {
                     OR: [
                         { name: { contains: search, mode: 'insensitive' } },
                         { email: { contains: search, mode: 'insensitive' } },
                         { admissionNumber: { contains: search, mode: 'insensitive' } }
-                    ],
-                    isActive: true
-                }
+                    ]
+                } : {})
             },
             include: {
-                user: true
+                teacher: true
             },
             orderBy: {
-                user: {
-                    name: 'asc'
-                }
+                name: 'asc'
             }
         });
+
+        // Transform into Teacher-centric objects
+        const teachers = users
+            .filter(u => u.teacher)
+            .map(u => ({
+                ...u.teacher,
+                user: u
+            }));
+
         return { success: true, data: teachers };
     } catch (error) {
         console.error("Failed to fetch teachers:", error);
