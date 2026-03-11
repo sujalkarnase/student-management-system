@@ -19,7 +19,6 @@ import {
 const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/student" },
     { icon: BookOpen, label: "My Classes", href: "/student/classes" },
-    { icon: Users, label: "Students", href: "/student/students" },
     { icon: BookOpen, label: "Assignments", href: "/student/assignments" },
     { icon: Settings, label: "Settings", href: "/student/settings" },
 ];
