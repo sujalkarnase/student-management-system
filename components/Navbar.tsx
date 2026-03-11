@@ -12,13 +12,13 @@ export default function Navbar() {
             <div className="bg-primary p-1.5 rounded-lg">
               <GraduationCap className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">SMS</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">Smart School</span>
           </div>
 
 
           <div className="flex items-center gap-4">
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="bg-primary text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
             >
               Login

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SMS - Student Management System",
+  title: "Smart School - Student Management System",
   description: "Modern educational platform for students and faculty.",
 };
 

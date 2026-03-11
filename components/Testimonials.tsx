@@ -15,9 +15,9 @@ export default function Testimonials() {
           className="bg-primary/5 rounded-[40px] p-12 md:p-20 relative overflow-hidden text-center"
         >
           <div className="absolute top-0 right-0 opacity-[0.03] -translate-y-1/4 translate-x-1/4">
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/167/167707.png" 
-              alt="School Icon" 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/167/167707.png"
+              alt="School Icon"
               className="w-96 h-96"
             />
           </div>
@@ -30,14 +30,14 @@ export default function Testimonials() {
             </div>
 
             <blockquote className="text-2xl md:text-4xl font-bold text-primary leading-tight mb-12 italic">
-              "SMS transformed our administrative efficiency by over 40% in just one semester. The parents love the mobile app, and teachers finally have their time back to focus on what matters: teaching."
+              "Smart School transformed our administrative efficiency by over 40% in just one semester. The parents love the mobile app, and teachers finally have their time back to focus on what matters: teaching."
             </blockquote>
 
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20 mb-4">
-                <img 
-                  src="https://i.pravatar.cc/150?u=sarah" 
-                  alt="Dr. Sarah Jenkins" 
+                <img
+                  src="https://i.pravatar.cc/150?u=sarah"
+                  alt="Dr. Sarah Jenkins"
                   className="w-full h-full object-cover"
                 />
               </div>

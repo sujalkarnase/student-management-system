@@ -20,10 +20,10 @@ export default function CTASection() {
               Ready to modernize your school management?
             </h2>
             <p className="text-xl text-primary-foreground/80 mb-10 max-w-sm">
-              Join thousands of institutions that have upgraded to SMS. Get started today with a personalized walkthrough.
+              Join thousands of institutions that have upgraded to Smart School. Get started today with a personalized walkthrough.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/login" className="bg-white text-primary px-8 py-4 rounded-xl text-lg font-bold hover:bg-zinc-100 transition-all shadow-lg">
+              <Link href="#features" className="bg-white text-primary px-8 py-4 rounded-xl text-lg font-bold hover:bg-zinc-100 transition-all shadow-lg">
                 Know More
               </Link>
               <Link href="/login" className="bg-primary border border-primary-foreground/30 text-primary-foreground px-8 py-4 rounded-xl text-lg font-bold hover:bg-primary-foreground/10 transition-all">
@@ -40,7 +40,7 @@ export default function CTASection() {
             >
               <Globe className="w-96 h-96 text-white" />
             </motion.div>
-            
+
             <div className="relative z-10 flex flex-col items-center">
               <div className="text-7xl font-black text-white mb-2 leading-none">100%</div>
               <div className="px-4 py-1 rounded-full bg-white/20 text-white text-sm font-bold uppercase tracking-widest flex items-center gap-2">

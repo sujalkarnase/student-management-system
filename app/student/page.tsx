@@ -255,7 +255,7 @@ export default function StudentDashboard() {
                 <div className="flex flex-wrap items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     <span className="bg-white border border-slate-100 px-4 py-2 rounded-full">Push Alerts</span>
                     <span className="bg-white border border-slate-100 px-4 py-2 rounded-full">Email Digests</span>
-                    <span className="bg-white border border-slate-100 px-4 py-2 rounded-full">SMS Opt-in</span>
+                    <span className="bg-white border border-slate-100 px-4 py-2 rounded-full">Smart School Opt-in</span>
                 </div>
             </motion.section>
         </div>

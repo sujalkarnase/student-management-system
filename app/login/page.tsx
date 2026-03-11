@@ -99,7 +99,7 @@ export default function LoginPage() {
             <div className="bg-primary p-2 rounded-xl group-hover:rotate-12 transition-transform">
               <GraduationCap className="w-8 h-8 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold tracking-tight text-foreground">SMS</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">Smart School</span>
           </Link>
 
           <div className="max-w-xl mb-auto">
@@ -232,18 +232,13 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="flex justify-center gap-6 text-sm font-medium text-slate-400 my-8">
-            <Link href="#" className="hover:text-slate-600 transition-colors">Help Center</Link>
-            <Link href="#" className="hover:text-slate-600 transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-slate-600 transition-colors">Terms of Service</Link>
-          </div>
           <div className="flex justify-center items-center gap-2 text-xs font-bold text-slate-400 tracking-wide uppercase">
             <Globe className="w-4 h-4" /> Accessibility
           </div>
         </div>
 
         <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest text-center mt-auto pt-8">
-          © 2024 SMS Educational Systems Ltd. All rights reserved.
+          © 2024 Smart School Educational Systems Ltd. All rights reserved.
         </p>
       </section>
     </div>

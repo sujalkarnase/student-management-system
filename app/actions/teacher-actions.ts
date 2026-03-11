@@ -31,10 +31,14 @@ export async function getTeachers(search: string = "") {
         // Transform into Teacher-centric objects
         const teachers = users
             .filter(u => u.teacher)
-            .map(u => ({
-                ...u.teacher,
-                user: u
-            }));
+            .map(u => {
+                const { teacher, ...userWithoutTeacher } = u as any;
+                return {
+                    ...teacher,
+                    salary: teacher?.salary ? Number(teacher.salary) : 0,
+                    user: userWithoutTeacher
+                };
+            });
 
         return { success: true, data: teachers };
     } catch (error) {
@@ -81,7 +85,7 @@ export async function createTeacher(formData: any) {
         });
 
         revalidatePath("/admin/teachers");
-        return { success: true, data: result };
+        return { success: true, data: { ...result, salary: Number(result.salary) } };
     } catch (error: any) {
         console.error("Failed to create teacher:", error);
         if (error.code === 'P2002') {

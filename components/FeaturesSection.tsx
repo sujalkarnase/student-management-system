@@ -25,7 +25,7 @@ const features = [
   {
     icon: MessageSquare,
     title: "Unified Communication",
-    description: "Bridge the gap with instant messaging, newsletters, and automated SMS alerts for parents.",
+    description: "Bridge the gap with instant messaging, newsletters, and automated Smart School alerts for parents.",
     color: "bg-rose-500/10 text-rose-500",
   },
   {

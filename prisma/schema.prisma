@@ -145,6 +145,7 @@ model Subject {
 
   class     Class @relation(fields: [classId], references: [id])
   assignments TeacherAssignment[]
+  homework    Homework[]
 
   @@index([classId])
 }
@@ -189,6 +190,7 @@ model Homework {
   teacherId       String
   classId         String
   sectionId       String
+  subjectId       String
   academicYearId  String
   title           String
   description     String
@@ -198,10 +200,12 @@ model Homework {
   teacher         Teacher @relation(fields: [teacherId], references: [id])
   class           Class   @relation(fields: [classId], references: [id])
   section         Section @relation(fields: [sectionId], references: [id])
+  subject         Subject @relation(fields: [subjectId], references: [id])
   academicYear    AcademicYear @relation(fields: [academicYearId], references: [id])
 
   @@index([classId])
   @@index([academicYearId])
+  @@index([subjectId])
 }
 
 

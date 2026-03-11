@@ -1,118 +1,180 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-    Users,
-    BarChart3,
-    Calendar,
-    BookOpen,
-    ChevronRight,
-    ArrowRight,
-    Sparkles
-} from "lucide-react";
+import { Users, BarChart3, Calendar, BookOpen, Clock, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { getTeacherDashboardData } from "@/app/actions/teacher-dashboard-actions";
+import Link from "next/link";
 
 export default function TeacherDashboard() {
+    const { data: session } = useSession();
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState<{
+         stats: { totalClasses: number };
+         upcomingHomework: any[];
+         assignedClasses: any[];
+    } | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (session?.user?.id) {
+             fetchDashboardData();
+        }
+    }, [session]);
+
+    const fetchDashboardData = async () => {
+        setLoading(true);
+        if(!session?.user?.id) return;
+        const res = await getTeacherDashboardData(session.user.id);
+        if (res.success && res.stats) {
+            setData({
+                 stats: res.stats,
+                 upcomingHomework: res.upcomingHomework || [],
+                 assignedClasses: res.assignedClasses || []
+            });
+        } else {
+            setError(res.error || "Failed to load dashboard data.");
+        }
+        setLoading(false);
+    };
+
+    if (loading) {
+         return (
+             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                 <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                 <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Compiling Dashboard Overview...</p>
+             </div>
+         );
+    }
+
+    if (error) {
+         return (
+             <div className="bg-rose-50 border border-rose-200 p-8 rounded-3xl flex flex-col items-center justify-center text-center gap-4">
+                  <AlertCircle className="w-12 h-12 text-rose-500" />
+                  <p className="text-xl font-bold text-rose-700">{error}</p>
+             </div>
+         );
+    }
+
+    const unqiueSubjectsCount = new Set(data?.assignedClasses.map(ac => ac.subject.name)).size || 0;
+
     return (
-        <div className="max-w-7xl mx-auto space-y-10">
+        <div className="max-w-7xl mx-auto space-y-10 pb-12">
+            {/* Header Section */}
             <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative bg-white rounded-[2rem] p-10 overflow-hidden border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between"
+                className="relative bg-white rounded-[2rem] p-8 md:p-10 overflow-hidden border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col items-start justify-between gap-6"
             >
-                <div className="relative z-10 max-w-xl">
-                    <div className="flex items-center gap-2 mb-6">
-                        <span className="px-3 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-widest rounded-full">Coming Soon</span>
-                        <span className="flex items-center gap-1 text-primary text-[10px] font-bold uppercase tracking-widest">
-                            <Sparkles className="w-3 h-3" /> v2.0 Preview
+                <div className="relative z-10 max-w-2xl">
+                    <div className="flex items-center gap-2 mb-4">
+                        <span className="flex items-center gap-1 text-primary text-[10px] font-bold uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full">
+                            <Sparkles className="w-3 h-3" /> Teacher Portal
                         </span>
                     </div>
-                    <h1 className="text-5xl font-extrabold text-[#0F172A] leading-tight mb-4">
-                        The future of classroom management.
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-[#0F172A] leading-tight mb-4 tracking-tight">
+                        Welcome back, Professor!
                     </h1>
-                    <p className="text-slate-500 text-lg leading-relaxed">
-                        We're building a smarter way for you to track attendance, manage assignments, and engage with your students. Get ready for a seamless educational experience.
+                    <p className="text-slate-500 text-lg md:text-xl leading-relaxed font-medium">
+                        Here is an overview of your active classes, assigned subjects, and upcoming homework deadlines for the current academic session.
                     </p>
                 </div>
 
-                <div className="mt-8 md:mt-0 relative z-10">
-                    <button className="bg-primary text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 hover:shadow-primary/40 transition-all flex items-center gap-3 group">
-                        Notify Teachers
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-4 text-center">
-                        Join 1,200+ educators waiting
-                    </p>
-                </div>
-
-                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] translate-x-1/2 translate-y-[-50%]"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-100 rounded-full blur-[80px] translate-x-[-30%] translate-y-[30%]"></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] translate-x-1/2 translate-y-[-50%] pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-100 rounded-full blur-[80px] translate-x-[-30%] translate-y-[30%] pointer-events-none"></div>
             </motion.section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { icon: Users, title: "Class List & Management", color: "text-blue-500", bg: "bg-blue-50" },
-                    { icon: BarChart3, title: "Attendance Analytics", color: "text-emerald-500", bg: "bg-emerald-50" },
-                    { icon: BookOpen, title: "Assignment Workflow", color: "text-indigo-500", bg: "bg-indigo-50" },
-                    { icon: Calendar, title: "Smart Academic Schedule", color: "text-amber-500", bg: "bg-amber-50" },
-                ].map((feature, idx) => (
+                    { title: "Assigned Classes", value: data?.stats?.totalClasses || 0, icon: Users, color: "text-blue-500", bg: "bg-blue-500", light: "bg-blue-50" },
+                    { title: "Active Subjects", value: unqiueSubjectsCount, icon: BookOpen, color: "text-emerald-500", bg: "bg-emerald-500", light: "bg-emerald-50" },
+                    { title: "Upcoming Deadlines", value: data?.upcomingHomework.length || 0, icon: Calendar, color: "text-amber-500", bg: "bg-amber-500", light: "bg-amber-50" },
+                ].map((stat, idx) => (
                     <motion.div
                         key={idx}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 * idx }}
-                        className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-lg shadow-slate-100/50 group hover:border-primary/20 transition-all"
+                        className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-md transition-shadow"
                     >
-                        <div className="flex items-center justify-between mb-8">
-                            <div className={`${feature.bg} p-4 rounded-2xl`}>
-                                <feature.icon className={`w-6 h-6 ${feature.color}`} />
-                            </div>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Upcoming</span>
+                         <div className={`${stat.bg} p-4 rounded-2xl text-white shadow-lg`}>
+                            <stat.icon className={`w-6 h-6`} />
                         </div>
-                        <h3 className="text-xl font-bold text-[#0F172A] mb-3">{feature.title}</h3>
-                        <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                            Access detailed student profiles, academic history, and collaborative tools for every class in your curriculum.
-                        </p>
-
-                        <div className="space-y-3">
-                            <div className="h-2 w-full bg-slate-50 rounded-full animate-pulse"></div>
-                            <div className="h-2 w-3/4 bg-slate-50 rounded-full animate-pulse delay-75"></div>
-                            <div className="h-2 w-1/2 bg-slate-50 rounded-full animate-pulse delay-150"></div>
-                        </div>
-
-                        <div className="mt-8 pt-6 border-t border-slate-50 flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            <Sparkles className="w-3 h-3 text-primary" />
-                            This feature is currently in development
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
+                            <h3 className="text-3xl font-black text-slate-800">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
-            <section className="bg-white rounded-[2rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/50">
-                <div className="flex items-center justify-between mb-10">
-                    <h2 className="text-2xl font-bold text-[#0F172A]">Launch Roadmap</h2>
-                    <button className="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
-                        View detailed roadmap <ChevronRight className="w-4 h-4" />
-                    </button>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Active Assignments Overview */}
+                <div className="lg:col-span-2 space-y-6">
+                     <div className="flex items-center justify-between">
+                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">Your Classes</h2>
+                         <Link href="/teacher/classes" className="text-sm font-bold text-primary hover:underline">View All</Link>
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {data?.assignedClasses.slice(0, 4).map((ac, idx) => (
+                               <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
+                                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 font-black text-lg shrink-0">
+                                       {ac.class.name}
+                                   </div>
+                                   <div>
+                                       <h4 className="font-bold text-slate-800 mb-1">{ac.subject.name}</h4>
+                                       <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                                            <span className="px-2 py-0.5 bg-slate-100 rounded">Sec {ac.section.name}</span>
+                                       </div>
+                                   </div>
+                               </div>
+                          ))}
+                          {data?.assignedClasses.length === 0 && (
+                               <div className="col-span-2 p-8 text-center text-slate-400 font-medium">You have not been assigned to any classes yet.</div>
+                          )}
+                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                    {[
-                        { step: 1, label: "Closed Beta", desc: "Starting for selected institutions in Q3 2024." },
-                        { step: 2, label: "Mobile App Sync", desc: "Full cross-platform support for iOS and Android." },
-                        { step: 3, label: "Global Launch", desc: "Full release available for all educators worldwide." },
-                    ].map((item, idx) => (
-                        <div key={idx} className="flex gap-4">
-                            <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 text-primary font-bold">
-                                {item.step}
-                            </div>
-                            <div>
-                                <p className="font-bold text-[#0F172A] mb-1">{item.label}</p>
-                                <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
-                            </div>
-                        </div>
-                    ))}
+                {/* Upcoming Homework */}
+                <div className="space-y-6">
+                     <div className="flex items-center justify-between">
+                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">Deadlines</h2>
+                         <Link href="/teacher/assignments" className="text-sm font-bold text-primary hover:underline">Manage</Link>
+                     </div>
+                     <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden p-2">
+                          {data?.upcomingHomework.length === 0 ? (
+                               <div className="p-8 text-center flex flex-col items-center gap-3">
+                                   <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
+                                       <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                                   </div>
+                                   <p className="text-sm text-slate-500 font-medium">No upcoming homework deadlines. You're all caught up!</p>
+                               </div>
+                          ) : (
+                               <div className="space-y-2">
+                                   {data?.upcomingHomework.map((hw, idx) => (
+                                        <div key={idx} className="p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h4 className="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors">{hw.title}</h4>
+                                                <span className="text-[10px] font-bold px-2 py-1 bg-rose-50 text-rose-600 rounded-lg whitespace-nowrap">
+                                                    {new Date(hw.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric'})}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+                                                <span>{hw.subject.name} • Class {hw.class.name} {hw.section.name}</span>
+                                                <Clock className="w-3 h-3" />
+                                            </div>
+                                        </div>
+                                   ))}
+                               </div>
+                          )}
+                     </div>
                 </div>
-            </section>
+            </div>
         </div>
     );
 }
+
+// Ensure CheckCircle2 is imported if missing up top
+import { CheckCircle2 } from "lucide-react";

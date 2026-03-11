@@ -44,7 +44,7 @@ export default function StudentLayout({
                         <div className="bg-primary p-2 rounded-xl group-hover:rotate-12 transition-transform shadow-md shadow-primary/20">
                             <GraduationCap className="w-6 h-6 text-white" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-[#0F172A]">SMS</span>
+                        <span className="text-xl font-bold tracking-tight text-[#0F172A]">Smart School</span>
                     </Link>
                 </div>
 
@@ -81,7 +81,7 @@ export default function StudentLayout({
             <div className="flex-1 pl-72">
                 <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-8 flex items-center justify-between">
                     <div className="flex items-center gap-4 text-sm font-medium text-slate-500">
-                        <span>SMS</span>
+                        <span>Smart School</span>
                         <ChevronRight className="w-4 h-4" />
                         <span className="text-[#0F172A]">Student Dashboard</span>
                     </div>
@@ -125,7 +125,7 @@ export default function StudentLayout({
                 </main>
 
                 <footer className="p-8 text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest bg-white border-t border-slate-100 mt-auto">
-                    © 2026 SMS. All rights reserved. Version 1.0.0-beta
+                    © 2026 Smart School. All rights reserved. Version 1.0.0-beta
                 </footer>
             </div>
         </div>
