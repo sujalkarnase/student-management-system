@@ -19,10 +19,76 @@ export async function getTeacherProfile(userId: string) {
              include: { user: true }
         });
         if (!teacher) return { success: false, error: "Teacher profile not found." };
-        return { success: true, data: teacher };
+        
+        // Sanitize Decimal to Number for Client Component serialization
+        const sanitizedTeacher = {
+             ...teacher,
+             salary: teacher.salary ? Number(teacher.salary) : 0
+        };
+
+        return { success: true, data: sanitizedTeacher };
     } catch (error) {
-        console.error("Failed to fetch teacher profile:", error);
+         console.error("Failed to fetch teacher profile:", error);
         return { success: false, error: "Failed to fetch profile." };
+    }
+}
+
+export async function updateTeacherProfile(userId: string, data: { name: string; email: string; qualification: string }) {
+    try {
+        const teacher = await prisma.teacher.findUnique({ where: { userId }, include: { user: true } });
+        if (!teacher) return { success: false, error: "Teacher profile not found." };
+        
+        // Ensure email isn't taken by someone else
+        if (data.email !== teacher.user.email) {
+             const existing = await prisma.user.findUnique({ where: { email: data.email } });
+             if (existing) return { success: false, error: "Email is already in use by another account." };
+        }
+
+        await prisma.$transaction([
+            prisma.user.update({
+                where: { id: userId },
+                data: { name: data.name, email: data.email }
+            }),
+            prisma.teacher.update({
+                where: { userId },
+                data: { qualification: data.qualification }
+            })
+        ]);
+
+        revalidatePath("/teacher/settings");
+        revalidatePath("/teacher");
+        return { success: true, message: "Profile updated successfully." };
+    } catch (error) {
+        console.error("Failed to update teacher profile:", error);
+        return { success: false, error: "Failed to update profile." };
+    }
+}
+
+// Ensure you have bcrypt imported at top of file, or dynamic import it here
+export async function updateTeacherPassword(userId: string, data: { current: string; new: string }) {
+    try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) return { success: false, error: "User not found." };
+
+        const bcrypt = await import("bcrypt");
+        const isMatch = await bcrypt.compare(data.current, user.passwordHash);
+        
+        if (!isMatch) {
+            return { success: false, error: "Current password is incorrect." };
+        }
+
+        const hashedNewPassword = await bcrypt.hash(data.new, 10);
+        await prisma.user.update({
+             where: { id: userId },
+             data: { passwordHash: hashedNewPassword }
+        });
+
+        // revalidate isn't strictly necessary as we don't display the password hash, but good practice
+        revalidatePath("/teacher/settings");
+        return { success: true, message: "Password updated successfully." };
+    } catch (error) {
+         console.error("Failed to update password:", error);
+         return { success: false, error: "Failed to secure new password." };
     }
 }
 
@@ -139,7 +205,8 @@ export async function getTeacherStudents(userId: string, classId?: string, secti
             include: {
                 student: { include: { user: true } },
                 class: true,
-                section: true
+                section: true,
+                attendance: { select: { status: true } }
             },
             orderBy: [
                  { class: { name: 'asc'} },

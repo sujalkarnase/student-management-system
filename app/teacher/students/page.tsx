@@ -103,6 +103,28 @@ function TeacherStudentsContent() {
          enrollment.student.admissionNumber.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Calculate aggregated stats
+    const totalStudents = students.length;
+    const currentlyViewing = filteredStudents.length;
+
+    // Calculate Average Attendance
+    const calculateOverallAttendance = () => {
+         if (filteredStudents.length === 0) return 0;
+         let totalPresent = 0;
+         let totalRecords = 0;
+
+         filteredStudents.forEach(ent => {
+             if (ent.attendance && ent.attendance.length > 0) {
+                 totalRecords += ent.attendance.length;
+                 totalPresent += ent.attendance.filter((a: any) => a.status === 'PRESENT').length;
+             }
+         });
+
+         return totalRecords === 0 ? 0 : Math.round((totalPresent / totalRecords) * 100);
+    };
+    const avgAttendance = calculateOverallAttendance();
+
+
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
             {/* Header */}
@@ -116,6 +138,28 @@ function TeacherStudentsContent() {
                     View active enrollments across all your taught sections. Use the filters to drill down into a specific class.
                 </p>
             </div>
+
+            {/* Dashboard Overview Cards */}
+            {!loading && !error && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-4">
+                     {[
+                         { label: "Total Students", value: totalStudents, icon: Users, color: "bg-blue-600", light: "bg-blue-50" },
+                         { label: "Showing Results", value: currentlyViewing, icon: Search, color: "bg-emerald-500", light: "bg-emerald-50" },
+                         { label: "Avg Attendance", value: `${avgAttendance}%`, icon: CalendarClock, color: "bg-amber-500", light: "bg-amber-50" },
+                     ].map((stat, i) => (
+                         <div key={stat.label} className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center gap-6 relative overflow-hidden group hover:shadow-xl transition-all">
+                             <div className={`absolute -right-8 -top-8 w-32 h-32 ${stat.light} rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700 pointer-events-none`}></div>
+                             <div className={`w-14 h-14 rounded-2xl ${stat.color} text-white flex items-center justify-center shrink-0 shadow-lg relative z-10 group-hover:scale-110 transition-transform`}>
+                                 <stat.icon className="w-6 h-6" />
+                             </div>
+                             <div className="relative z-10">
+                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                                 <p className="text-3xl font-black text-slate-800">{stat.value}</p>
+                             </div>
+                         </div>
+                     ))}
+                </div>
+            )}
 
             {/* Filter Card */}
             <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm relative z-20">
@@ -216,38 +260,65 @@ function TeacherStudentsContent() {
                                          </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
-                                         {filteredStudents.map((enrollment) => (
-                                              <tr key={enrollment.id} className="hover:bg-slate-50/50 transition-colors group">
-                                                  <td className="py-4 px-6">
-                                                       <div className="flex items-center gap-3">
-                                                           <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 overflow-hidden">
-                                                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${enrollment.student.user.name}`} alt="avatar" />
+                                         {filteredStudents.map((enrollment) => {
+                                              const records = enrollment.attendance || [];
+                                              const totalRecordCount = records.length;
+                                              const presentCount = records.filter((a: any) => a.status === 'PRESENT').length;
+                                              const attendancePercentage = totalRecordCount === 0 ? 0 : Math.round((presentCount / totalRecordCount) * 100);
+                                              
+                                              let attendanceColor = "bg-slate-200";
+                                              let textColor = "text-slate-600";
+                                              if (totalRecordCount > 0) {
+                                                   if (attendancePercentage >= 85) { attendanceColor = "bg-emerald-500"; textColor = "text-emerald-600"; }
+                                                   else if (attendancePercentage >= 75) { attendanceColor = "bg-amber-500"; textColor = "text-amber-600"; }
+                                                   else { attendanceColor = "bg-rose-500"; textColor = "text-rose-600"; }
+                                              }
+
+                                              return (
+                                                  <tr key={enrollment.id} className="hover:bg-slate-50/50 transition-colors group">
+                                                      <td className="py-4 px-6">
+                                                           <div className="flex items-center gap-3">
+                                                               <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${enrollment.student.user.name}`} alt="avatar" />
+                                                               </div>
+                                                               <div>
+                                                                    <p className="font-bold text-slate-800 group-hover:text-primary transition-colors">{enrollment.student.user.name}</p>
+                                                                    <p className="text-xs text-slate-500">{enrollment.student.user.email || "No email"}</p>
+                                                               </div>
                                                            </div>
+                                                      </td>
+                                                      <td className="py-4 px-6">
+                                                           <span className="font-mono text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                                                                {enrollment.student.admissionNumber}
+                                                           </span>
+                                                      </td>
+                                                      <td className="py-4 px-6">
                                                            <div>
-                                                                <p className="font-bold text-slate-800 group-hover:text-primary transition-colors">{enrollment.student.user.name}</p>
-                                                                <p className="text-xs text-slate-500">{enrollment.student.user.email || "No email"}</p>
+                                                               <p className="font-bold text-slate-700 text-sm">Class {enrollment.class.name} • Sec {enrollment.section.name}</p>
+                                                               <p className="text-xs text-slate-500 font-medium mt-0.5">Roll No: {enrollment.rollNumber}</p>
                                                            </div>
-                                                       </div>
-                                                  </td>
-                                                  <td className="py-4 px-6">
-                                                       <span className="font-mono text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
-                                                            {enrollment.student.admissionNumber}
-                                                       </span>
-                                                  </td>
-                                                  <td className="py-4 px-6">
-                                                       <div>
-                                                           <p className="font-bold text-slate-700 text-sm">Class {enrollment.class.name} • Sec {enrollment.section.name}</p>
-                                                           <p className="text-xs text-slate-500 font-medium mt-0.5">Roll No: {enrollment.rollNumber}</p>
-                                                       </div>
-                                                  </td>
-                                                  <td className="py-4 px-6 text-center">
-                                                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
-                                                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                                           Active
-                                                       </span>
-                                                  </td>
-                                              </tr>
-                                         ))}
+                                                      </td>
+                                                      <td className="py-4 px-6">
+                                                            <div className="w-full max-w-[120px] mx-auto">
+                                                                <div className="flex justify-between items-end mb-1">
+                                                                    <span className={`text-xs font-black ${totalRecordCount === 0 ? 'text-slate-400' : textColor}`}>
+                                                                         {totalRecordCount === 0 ? 'N/A' : `${attendancePercentage}%`}
+                                                                    </span>
+                                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                                                         {totalRecordCount} log(s)
+                                                                    </span>
+                                                                </div>
+                                                                <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                                                    <div 
+                                                                         className={`h-full rounded-full transition-all duration-1000 ${attendanceColor}`} 
+                                                                         style={{ width: `${totalRecordCount === 0 ? 0 : attendancePercentage}%` }}
+                                                                    ></div>
+                                                                </div>
+                                                            </div>
+                                                      </td>
+                                                  </tr>
+                                              );
+                                         })}
                                     </tbody>
                                </table>
                           </div>

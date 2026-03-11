@@ -7,14 +7,26 @@ interface HomeworkFormProps {
     onClose: () => void;
     onSubmit: (data: { title: string; description: string; dueDate: string; assignmentId: string }) => Promise<void>;
     assignments: any[]; // The authorized assignments for this teacher
+    initialClassId?: string;
+    initialSectionId?: string;
 }
 
-export default function HomeworkForm({ onClose, onSubmit, assignments }: HomeworkFormProps) {
+export default function HomeworkForm({ onClose, onSubmit, assignments, initialClassId, initialSectionId }: HomeworkFormProps) {
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [dueDate, setDueDate] = useState("");
     const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
+
+    // Pre-fill the dropdown if opened from a pre-filtered view
+    useEffect(() => {
+         if (initialClassId && initialSectionId && assignments.length > 0) {
+              const matchedAssignment = assignments.find(a => a.classId === initialClassId && a.sectionId === initialSectionId);
+              if (matchedAssignment) {
+                   setSelectedAssignmentId(matchedAssignment.id);
+              }
+         }
+    }, [initialClassId, initialSectionId, assignments]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

@@ -4,11 +4,18 @@ import React, { useState, useEffect } from "react";
 import { BookOpen, Plus, Search, Calendar, Loader2, BookX, Trash2, Clock, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getTeacherHomework, getTeacherClasses, createHomework, deleteHomework } from "@/app/actions/teacher-dashboard-actions";
 import HomeworkForm from "@/components/teacher/HomeworkForm";
 
-export default function TeacherAssignmentsPage() {
+function TeacherAssignmentsContent() {
     const { data: session } = useSession();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
+    const initialClassId = searchParams.get("class") || "";
+    const initialSectionId = searchParams.get("section") || "";
+
     
     // Data State
     const [loading, setLoading] = useState(true);
@@ -19,6 +26,8 @@ export default function TeacherAssignmentsPage() {
     // UI State
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedClass, setSelectedClass] = useState(initialClassId);
+    const [selectedSection, setSelectedSection] = useState(initialSectionId);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -26,6 +35,18 @@ export default function TeacherAssignmentsPage() {
             initData();
         }
     }, [session]);
+
+    // Handle URL param changes dynamically
+    useEffect(() => {
+         if (session?.user?.id && !loading && assignments.length > 0) {
+             const cId = searchParams.get("class") || "";
+             const sId = searchParams.get("section") || "";
+             if (cId !== selectedClass || sId !== selectedSection) {
+                 setSelectedClass(cId);
+                 setSelectedSection(sId);
+             }
+         }
+    }, [searchParams]);
 
     const initData = async () => {
         setLoading(true);
@@ -71,10 +92,40 @@ export default function TeacherAssignmentsPage() {
          setDeletingId(null);
     };
 
-    const filteredHomework = homework.filter(hw => 
-         hw.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-         hw.subject.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredHomework = homework.filter(hw => {
+         const matchesSearch = hw.title.toLowerCase().includes(searchQuery.toLowerCase()) || hw.subject.name.toLowerCase().includes(searchQuery.toLowerCase());
+         const matchesClass = selectedClass ? hw.classId === selectedClass : true;
+         const matchesSection = selectedSection ? hw.sectionId === selectedSection : true;
+         return matchesSearch && matchesClass && matchesSection;
+    });
+
+    const activeTasksCount = filteredHomework.filter(hw => new Date(hw.dueDate) >= new Date()).length;
+    const pastDueCount = filteredHomework.filter(hw => new Date(hw.dueDate) < new Date()).length;
+
+    // Derived distinct classes for the dropdown
+    const uniqueClasses = Array.from(new Set(assignments.map(a => JSON.stringify({ id: a.class.id, name: a.class.name }))))
+        .map(str => JSON.parse(str));
+
+    // Dynamic sections based on selected class
+    const availableSections = assignments
+        .filter(a => a.classId === selectedClass)
+        .map(a => ({ id: a.section.id, name: a.section.name }))
+        .filter((value, index, self) => index === self.findIndex((t) => t.id === value.id));
+
+    const handleFilterSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const params = new URLSearchParams();
+        if (selectedClass) params.set("class", selectedClass);
+        if (selectedSection) params.set("section", selectedSection);
+        router.push(`/teacher/assignments?${params.toString()}`);
+    };
+
+    const handleClearFilters = () => {
+         setSelectedClass("");
+         setSelectedSection("");
+         setSearchQuery("");
+         router.push(`/teacher/assignments`);
+    };
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
@@ -91,26 +142,106 @@ export default function TeacherAssignmentsPage() {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                     {/* Search Bar */}
-                    <div className="relative w-full md:w-64 z-10">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search tasks..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium bg-white"
-                        />
-                    </div>
-                    <button
-                        onClick={() => setIsFormOpen(true)}
-                        className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-600 transition-colors flex items-center gap-2 shadow-lg shadow-primary/30 whitespace-nowrap"
-                    >
-                        <Plus className="w-5 h-5" />
-                        New Task
-                    </button>
+            </div>
+
+            {/* Dashboard Overview Cards */}
+            {!loading && !error && homework.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-4">
+                     {[
+                         { label: "Total Assignments", value: filteredHomework.length, icon: BookOpen, color: "bg-blue-600", light: "bg-blue-50" },
+                         { label: "Active Tasks", value: activeTasksCount, icon: Clock, color: "bg-emerald-500", light: "bg-emerald-50" },
+                         { label: "Past Due", value: pastDueCount, icon: AlertCircle, color: "bg-amber-500", light: "bg-amber-50" },
+                     ].map((stat, i) => (
+                         <div key={stat.label} className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center gap-6 relative overflow-hidden group hover:shadow-xl transition-all">
+                             <div className={`absolute -right-8 -top-8 w-32 h-32 ${stat.light} rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700 pointer-events-none`}></div>
+                             <div className={`w-14 h-14 rounded-2xl ${stat.color} text-white flex items-center justify-center shrink-0 shadow-lg relative z-10 group-hover:scale-110 transition-transform`}>
+                                 <stat.icon className="w-6 h-6" />
+                             </div>
+                             <div className="relative z-10">
+                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                                 <p className="text-3xl font-black text-slate-800">{stat.value}</p>
+                             </div>
+                         </div>
+                     ))}
                 </div>
+            )}
+
+            {/* Filter Card */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm relative z-20">
+                 {loading && homework.length === 0 ? (
+                      <div className="flex justify-center p-4"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+                 ) : (
+                      <form onSubmit={handleFilterSubmit} className="flex flex-col md:flex-row gap-4 items-end">
+                           <div className="flex-1 w-full relative">
+                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Search Tasks</label>
+                                <div className="relative">
+                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                     <input 
+                                         value={searchQuery}
+                                         onChange={e => setSearchQuery(e.target.value)}
+                                         placeholder="Search by title or subject..."
+                                         className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
+                                     />
+                                </div>
+                           </div>
+
+                           <div className="w-full md:w-48">
+                               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Class</label>
+                               <select 
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium bg-white"
+                                    value={selectedClass}
+                                    onChange={(e) => {
+                                         setSelectedClass(e.target.value);
+                                         setSelectedSection(""); // Reset section when class changes
+                                    }}
+                               >
+                                    <option value="">All Classes</option>
+                                    {uniqueClasses.map(c => <option key={c.id} value={c.id}>Class {c.name}</option>)}
+                               </select>
+                           </div>
+
+                             <div className="w-full md:w-48">
+                               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Section</label>
+                               <select 
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium bg-white disabled:opacity-50"
+                                    value={selectedSection}
+                                    onChange={(e) => setSelectedSection(e.target.value)}
+                                    disabled={!selectedClass}
+                               >
+                                    <option value="">All Sections</option>
+                                    {availableSections.map(s => <option key={s.id} value={s.id}>Section {s.name}</option>)}
+                               </select>
+                           </div>
+
+                           <div className="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
+                               <button 
+                                   type="submit" 
+                                   disabled={loading}
+                                   className="flex-1 md:flex-none bg-slate-800 text-white px-6 py-3 rounded-xl font-bold whitespace-nowrap hover:bg-slate-700 transition-colors disabled:opacity-50 flex justify-center items-center h-[50px]"
+                               >
+                                   Filter
+                               </button>
+                               {(selectedClass || selectedSection || searchQuery) && (
+                                   <button 
+                                        type="button" 
+                                        disabled={loading}
+                                        onClick={handleClearFilters}
+                                        className="px-6 py-3 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors h-[50px] whitespace-nowrap"
+                                   >
+                                        Clear
+                                   </button>
+                               )}
+                               <button
+                                   type="button"
+                                   onClick={() => setIsFormOpen(true)}
+                                   className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/30 whitespace-nowrap h-[50px] ml-4"
+                               >
+                                   <Plus className="w-5 h-5" />
+                                   New Task
+                               </button>
+                           </div>
+                      </form>
+                 )}
             </div>
 
             {loading ? (
@@ -199,10 +330,20 @@ export default function TeacherAssignmentsPage() {
             {isFormOpen && (
                  <HomeworkForm 
                      assignments={assignments} 
+                     initialClassId={selectedClass}
+                     initialSectionId={selectedSection}
                      onClose={() => setIsFormOpen(false)} 
                      onSubmit={handleCreateAssignment} 
                  />
             )}
         </div>
+    );
+}
+
+export default function TeacherAssignmentsPage() {
+    return (
+        <React.Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+            <TeacherAssignmentsContent />
+        </React.Suspense>
     );
 }
