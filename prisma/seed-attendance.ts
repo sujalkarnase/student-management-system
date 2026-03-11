@@ -15,31 +15,31 @@ async function main() {
     return;
   }
 
-  // Get Class 1
+
   const class1 = await prisma.class.findFirst({
     where: { name: '1', academicYearId: currentYear.id },
     include: { sections: true }
   });
 
   if (!class1 || class1.sections.length === 0) {
-      console.error('Class 1 or its sections not found. Run seed-classes.ts first.');
-      return;
+    console.error('Class 1 or its sections not found. Run seed-classes.ts first.');
+    return;
   }
 
   const sectionA = class1.sections.find(s => s.name === 'A');
-  if(!sectionA) return;
+  if (!sectionA) return;
 
-  // Clear existing enrollments for these test students first to avoid unique constraint clash on RollNumber
+
   await prisma.enrollment.deleteMany({
-      where: {
-          student: {
-              admissionNumber: { in: ['ADM-999', 'ADM-1000'] }
-          }
+    where: {
+      student: {
+        admissionNumber: { in: ['ADM-999', 'ADM-1000'] }
       }
+    }
   });
 
 
-  // Create Student 1
+
   const hash = await bcrypt.hash('password123', 10);
   const user1 = await prisma.user.upsert({
     where: { email: 'student99@test.com' },
@@ -54,32 +54,32 @@ async function main() {
   });
 
   const student1 = await prisma.student.upsert({
-      where: { userId: user1.id },
-      update: {},
-      create: {
-          userId: user1.id,
-          admissionNumber: 'ADM-999',
-          fatherName: 'Father',
-          motherName: 'Mother',
-          phone: '1234567890',
-          address: 'Test Address',
-          dateOfBirth: new Date('2015-01-01')
-      }
+    where: { userId: user1.id },
+    update: {},
+    create: {
+      userId: user1.id,
+      admissionNumber: 'ADM-999',
+      fatherName: 'Father',
+      motherName: 'Mother',
+      phone: '1234567890',
+      address: 'Test Address',
+      dateOfBirth: new Date('2015-01-01')
+    }
   });
 
-  // Now create the new enrollment safely (roll 99)
+
   await prisma.enrollment.create({
-      data: {
-          studentId: student1.id,
-          classId: class1.id,
-          sectionId: sectionA.id,
-          academicYearId: currentYear.id,
-          rollNumber: 99
-      }
+    data: {
+      studentId: student1.id,
+      classId: class1.id,
+      sectionId: sectionA.id,
+      academicYearId: currentYear.id,
+      rollNumber: 99
+    }
   });
 
 
-  // Create Student 2
+
   const user2 = await prisma.user.upsert({
     where: { email: 'student100@test.com' },
     update: {},
@@ -93,28 +93,28 @@ async function main() {
   });
 
   const student2 = await prisma.student.upsert({
-      where: { userId: user2.id },
-      update: {},
-      create: {
-          userId: user2.id,
-          admissionNumber: 'ADM-1000',
-          fatherName: 'Father2',
-          motherName: 'Mother2',
-          phone: '0987654321',
-          address: 'Test Address 2',
-          dateOfBirth: new Date('2015-02-02')
-      }
+    where: { userId: user2.id },
+    update: {},
+    create: {
+      userId: user2.id,
+      admissionNumber: 'ADM-1000',
+      fatherName: 'Father2',
+      motherName: 'Mother2',
+      phone: '0987654321',
+      address: 'Test Address 2',
+      dateOfBirth: new Date('2015-02-02')
+    }
   });
 
-  // Create enrollment 2 safely (roll 100)
+
   await prisma.enrollment.create({
-      data: {
-          studentId: student2.id,
-          classId: class1.id,
-          sectionId: sectionA.id,
-          academicYearId: currentYear.id,
-          rollNumber: 100
-      }
+    data: {
+      studentId: student2.id,
+      classId: class1.id,
+      sectionId: sectionA.id,
+      academicYearId: currentYear.id,
+      rollNumber: 100
+    }
   });
 
   console.log('Seeded Students and Enrollments for Attendance testing.');

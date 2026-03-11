@@ -69,8 +69,8 @@ export default function AdminClassesPage() {
         setActiveMenu(null);
     };
 
-    const filteredClasses = classes.filter(c => 
-        c.name.toLowerCase().includes(search.toLowerCase()) || 
+    const filteredClasses = classes.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
         c.subjects.some((s: any) => s.name.toLowerCase().includes(search.toLowerCase()))
     );
 
@@ -79,7 +79,7 @@ export default function AdminClassesPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
-            {/* Header Section */}
+
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-black text-slate-800 tracking-tight">
@@ -104,7 +104,7 @@ export default function AdminClassesPage() {
                 </div>
             </div>
 
-            {/* Stats Overview */}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                     { label: "Active Classes", value: classes.length, icon: GraduationCap, color: "bg-blue-500" },
@@ -129,7 +129,7 @@ export default function AdminClassesPage() {
                 ))}
             </div>
 
-            {/* View Actions */}
+
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div className="relative w-full sm:max-w-md">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -143,7 +143,7 @@ export default function AdminClassesPage() {
                 </div>
             </div>
 
-            {/* Classes Grid */}
+
             {loading ? (
                 <div className="py-24 flex flex-col items-center justify-center gap-4 bg-white rounded-3xl border border-slate-100 border-dashed">
                     <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -168,7 +168,7 @@ export default function AdminClassesPage() {
                             key={cls.id}
                             className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all p-6 relative group overflow-hidden"
                         >
-                            {/* Decorative Background Element */}
+
                             <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none" />
 
                             <div className="flex justify-between items-start mb-6">
@@ -219,7 +219,7 @@ export default function AdminClassesPage() {
                             </div>
 
                             <div className="space-y-4">
-                                {/* Sections */}
+
                                 <div>
                                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
                                         <Users className="w-3 h-3" /> Sections
@@ -234,7 +234,7 @@ export default function AdminClassesPage() {
                                     </div>
                                 </div>
 
-                                {/* Subjects */}
+
                                 <div>
                                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
                                         <BookOpen className="w-3 h-3" /> Subjects Curriculum
@@ -254,7 +254,7 @@ export default function AdminClassesPage() {
                 </div>
             )}
 
-            {/* Modal */}
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => { setIsModalOpen(false); setSelectedClass(null); }}

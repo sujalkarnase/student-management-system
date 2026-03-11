@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Verifying Settings data...');
 
-    // 1. Verify we can create a new academic year
+
     const yearLabel = 'Test-Year-' + Math.floor(Math.random() * 1000);
     const newYear = await prisma.academicYear.create({
         data: {
@@ -15,7 +15,7 @@ async function main() {
     });
     console.log('Successfully created year:', newYear.yearLabel);
 
-    // 2. Verify we can toggle Active year
+
     await prisma.$transaction(async (tx) => {
         await tx.academicYear.updateMany({
             where: { isCurrent: true },
@@ -38,11 +38,11 @@ async function main() {
         console.error('Failed to toggle active year!');
     }
 
-    // 3. Verify admin profile structure
+
     const admin = await prisma.user.findFirst({
         where: { role: 'ADMIN' }
     });
-    
+
     if (admin) {
         console.log('Successfully fetched admin profile:', admin.email);
     } else {
@@ -53,10 +53,10 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

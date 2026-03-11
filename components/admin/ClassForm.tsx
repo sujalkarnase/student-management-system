@@ -15,7 +15,7 @@ interface ClassFormProps {
 
 export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
     const [loading, setLoading] = useState(false);
-    
+
     const [name, setName] = useState(initialData?.name || "");
     const [sections, setSections] = useState<{ id?: string; name: string }[]>(
         initialData?.sections?.length ? initialData.sections : [{ name: "A" }]
@@ -26,8 +26,8 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // Filter out empty entries
+
+
         const filteredSections = sections.filter(s => s.name.trim() !== "");
         const filteredSubjects = subjects.filter(s => s.name.trim() !== "");
 
@@ -48,8 +48,8 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
     };
 
     const handleArrayChange = (
-        index: number, 
-        value: string, 
+        index: number,
+        value: string,
         setter: React.Dispatch<React.SetStateAction<any[]>>,
         array: any[]
     ) => {
@@ -63,7 +63,7 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
     };
 
     const removeArrayItem = (index: number, setter: React.Dispatch<React.SetStateAction<any[]>>, array: any[]) => {
-        if (array.length <= 1) return; // Prevent removing last item
+        if (array.length <= 1) return;
         const newArray = array.filter((_, i) => i !== index);
         setter(newArray);
     };
@@ -73,7 +73,7 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Basic Info */}
+
             <div>
                 <label className={labelClasses}>Class Name</label>
                 <input
@@ -86,7 +86,7 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Sections Manager */}
+
                 <div className="bg-slate-50/50 p-4 rounded-3xl border border-slate-100">
                     <div className="flex items-center justify-between mb-4 px-2">
                         <div className="flex items-center gap-2">
@@ -101,7 +101,7 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
                             + Add
                         </button>
                     </div>
-                    
+
                     <div className="space-y-3">
                         {sections.map((section, index) => (
                             <div key={index} className="flex gap-2">
@@ -125,7 +125,7 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
                     </div>
                 </div>
 
-                {/* Subjects Manager */}
+
                 <div className="bg-slate-50/50 p-4 rounded-3xl border border-slate-100">
                     <div className="flex items-center justify-between mb-4 px-2">
                         <div className="flex items-center gap-2">
@@ -140,7 +140,7 @@ export default function ClassForm({ initialData, onSubmit }: ClassFormProps) {
                             + Add
                         </button>
                     </div>
-                    
+
                     <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                         {subjects.map((subject, index) => (
                             <div key={index} className="flex gap-2">

@@ -83,7 +83,7 @@ export default function TeacherAssignmentForm({ teacherId, teacherName }: Teache
 
     return (
         <div className="space-y-8">
-            {/* New Assignment Form */}
+
             <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                     <Plus className="w-4 h-4 text-primary" />
@@ -146,7 +146,7 @@ export default function TeacherAssignmentForm({ teacherId, teacherName }: Teache
                 </button>
             </div>
 
-            {/* Current Assignments List */}
+
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-slate-400" />

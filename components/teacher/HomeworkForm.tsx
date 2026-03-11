@@ -6,7 +6,7 @@ import { Loader2, Plus, Calendar, BookOpen, AlertCircle } from "lucide-react";
 interface HomeworkFormProps {
     onClose: () => void;
     onSubmit: (data: { title: string; description: string; dueDate: string; assignmentId: string }) => Promise<void>;
-    assignments: any[]; // The authorized assignments for this teacher
+    assignments: any[];
     initialClassId?: string;
     initialSectionId?: string;
 }
@@ -18,14 +18,14 @@ export default function HomeworkForm({ onClose, onSubmit, assignments, initialCl
     const [dueDate, setDueDate] = useState("");
     const [selectedAssignmentId, setSelectedAssignmentId] = useState("");
 
-    // Pre-fill the dropdown if opened from a pre-filtered view
+
     useEffect(() => {
-         if (initialClassId && initialSectionId && assignments.length > 0) {
-              const matchedAssignment = assignments.find(a => a.classId === initialClassId && a.sectionId === initialSectionId);
-              if (matchedAssignment) {
-                   setSelectedAssignmentId(matchedAssignment.id);
-              }
-         }
+        if (initialClassId && initialSectionId && assignments.length > 0) {
+            const matchedAssignment = assignments.find(a => a.classId === initialClassId && a.sectionId === initialSectionId);
+            if (matchedAssignment) {
+                setSelectedAssignmentId(matchedAssignment.id);
+            }
+        }
     }, [initialClassId, initialSectionId, assignments]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -40,11 +40,11 @@ export default function HomeworkForm({ onClose, onSubmit, assignments, initialCl
 
     return (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div 
+            <div
                 className="bg-white rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-2xl relative"
                 onClick={e => e.stopPropagation()}
             >
-                {/* Header */}
+
                 <div className="p-6 md:p-8 bg-slate-50 border-b border-slate-100 flex items-start gap-5">
                     <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
                         <Calendar className="w-6 h-6 text-primary" />
@@ -57,13 +57,13 @@ export default function HomeworkForm({ onClose, onSubmit, assignments, initialCl
 
                 <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
                     {assignments.length === 0 ? (
-                         <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center gap-3 text-amber-800">
-                             <AlertCircle className="w-5 h-5 shrink-0" />
-                             <p className="text-sm font-bold">You must be assigned to at least one class before publishing assignments.</p>
-                         </div>
+                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center gap-3 text-amber-800">
+                            <AlertCircle className="w-5 h-5 shrink-0" />
+                            <p className="text-sm font-bold">You must be assigned to at least one class before publishing assignments.</p>
+                        </div>
                     ) : (
                         <>
-                            {/* Target Audience */}
+
                             <div>
                                 <label className={labelClasses}>Select Class & Subject</label>
                                 <select
@@ -111,7 +111,7 @@ export default function HomeworkForm({ onClose, onSubmit, assignments, initialCl
                                         required
                                         type="date"
                                         value={dueDate}
-                                        min={new Date().toISOString().split('T')[0]} // Cannot be in past
+                                        min={new Date().toISOString().split('T')[0]}
                                         onChange={(e) => setDueDate(e.target.value)}
                                         className={inputClasses}
                                     />
@@ -120,7 +120,7 @@ export default function HomeworkForm({ onClose, onSubmit, assignments, initialCl
                         </>
                     )}
 
-                    {/* Actions */}
+
                     <div className="flex gap-3 pt-6 border-t border-slate-100">
                         <button
                             type="button"

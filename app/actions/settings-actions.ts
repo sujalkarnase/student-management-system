@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcrypt";
 
-// ------------------------------------------------------------------
-// Academic Year Management
-// ------------------------------------------------------------------
+
+
+
 
 export async function getAcademicYears() {
     try {
@@ -25,24 +25,24 @@ export async function getAcademicYears() {
 export async function createAcademicYear(yearLabel: string) {
     try {
         if (!yearLabel || yearLabel.trim() === "") {
-             return { success: false, error: "Year label is required." };
+            return { success: false, error: "Year label is required." };
         }
 
         const newYear = await prisma.academicYear.create({
             data: {
                 yearLabel: yearLabel.trim(),
-                isCurrent: false, // Default to false, must activate explicitly
+                isCurrent: false,
             }
         });
 
         revalidatePath("/admin/settings");
-        // Also revalidate layout to refresh the session badge globally if needed
-        revalidatePath("/admin", "layout"); 
-        
+
+        revalidatePath("/admin", "layout");
+
         return { success: true, data: newYear };
     } catch (error: any) {
         console.error("Failed to create academic year:", error);
-         if (error.code === 'P2002') {
+        if (error.code === 'P2002') {
             return { success: false, error: "This academic year already exists." };
         }
         return { success: false, error: "Failed to create academic year." };
@@ -52,13 +52,13 @@ export async function createAcademicYear(yearLabel: string) {
 export async function setActiveAcademicYear(id: string) {
     try {
         await prisma.$transaction(async (tx) => {
-            // Unset current active year
+
             await tx.academicYear.updateMany({
                 where: { isCurrent: true },
                 data: { isCurrent: false }
             });
 
-            // Set new active year
+
             await tx.academicYear.update({
                 where: { id },
                 data: { isCurrent: true }
@@ -66,8 +66,8 @@ export async function setActiveAcademicYear(id: string) {
         });
 
         revalidatePath("/admin/settings");
-        revalidatePath("/admin", "layout"); // Update the badge everywhere!
-        
+        revalidatePath("/admin", "layout");
+
         return { success: true, message: "Active Session updated successfully." };
     } catch (error) {
         console.error("Failed to set active academic year:", error);
@@ -76,19 +76,19 @@ export async function setActiveAcademicYear(id: string) {
 }
 
 
-// ------------------------------------------------------------------
-// Profile Management
-// ------------------------------------------------------------------
+
+
+
 
 export async function getAdminProfile(userId: string) {
-     try {
+    try {
         const admin = await prisma.user.findUnique({
             where: { id: userId, role: "ADMIN" },
             select: { id: true, name: true, email: true }
         });
-        
+
         if (!admin) return { success: false, error: "Admin not found." };
-        
+
         return { success: true, data: admin };
     } catch (error) {
         console.error("Failed to fetch admin profile:", error);
@@ -97,7 +97,7 @@ export async function getAdminProfile(userId: string) {
 }
 
 export async function updateAdminProfile(
-    userId: string, 
+    userId: string,
     data: { name: string; email: string; currentPassword?: string; newPassword?: string }
 ) {
     try {
@@ -105,17 +105,17 @@ export async function updateAdminProfile(
         if (!user) return { success: false, error: "User not found." };
 
         let updateData: any = {
-             name: data.name,
-             email: data.email
+            name: data.name,
+            email: data.email
         };
 
-        // If they want to change password, verify old and hash new
+
         if (data.newPassword && data.currentPassword) {
-             const isValid = await bcrypt.compare(data.currentPassword, user.passwordHash);
-             if (!isValid) {
-                 return { success: false, error: "Incorrect current password." };
-             }
-             updateData.passwordHash = await bcrypt.hash(data.newPassword, 10);
+            const isValid = await bcrypt.compare(data.currentPassword, user.passwordHash);
+            if (!isValid) {
+                return { success: false, error: "Incorrect current password." };
+            }
+            updateData.passwordHash = await bcrypt.hash(data.newPassword, 10);
         }
 
         await prisma.user.update({

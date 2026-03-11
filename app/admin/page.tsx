@@ -134,9 +134,9 @@ export default function AdminDashboard() {
                                                 tick={{ fill: '#94A3B8', fontSize: 10 }}
                                                 dy={10}
                                             />
-                                            <YAxis 
-                                                axisLine={false} 
-                                                tickLine={false} 
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
                                                 tick={{ fill: '#94A3B8', fontSize: 10 }}
                                             />
                                             <Tooltip
@@ -160,21 +160,6 @@ export default function AdminDashboard() {
                                 </div>
                             )}
                         </div>
-
-                        {/* <motion.div
-                            initial={{ x: 20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className="absolute -bottom-4 -right-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-xl flex items-center gap-4 z-30"
-                        >
-                            <div className="bg-emerald-50 p-2 rounded-xl">
-                                <Sparkles className="w-6 h-6 text-emerald-500" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Performance</p>
-                                <p className="text-sm font-bold text-[#0F172A]">System Healthy</p>
-                            </div>
-                        </motion.div> */}
                     </div>
                 </div>
 

@@ -43,16 +43,14 @@ export default function AdminLayout({
         signOut({ callbackUrl: "/login" });
     };
 
-    // Close sidebar on route change on mobile
     useEffect(() => {
         setIsSidebarOpen(false);
     }, [pathname]);
 
     return (
         <div className="min-h-screen flex bg-[#F8FAFC] relative">
-            {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
@@ -66,7 +64,7 @@ export default function AdminLayout({
                         </div>
                         <span className="text-xl font-bold tracking-tight text-[#0F172A]">Smart School</span>
                     </Link>
-                    <button 
+                    <button
                         onClick={() => setIsSidebarOpen(false)}
                         className="p-2 rounded-lg bg-slate-50 text-slate-500 hover:bg-slate-100 lg:hidden"
                     >
@@ -107,7 +105,7 @@ export default function AdminLayout({
             <div className="flex-1 lg:pl-72 flex flex-col min-h-screen">
                 <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-8 flex items-center justify-between">
                     <div className="flex items-center gap-3 sm:gap-4">
-                        <button 
+                        <button
                             onClick={() => setIsSidebarOpen(true)}
                             className="p-2 rounded-xl bg-slate-50 text-slate-500 hover:bg-slate-100 lg:hidden transition-colors"
                         >

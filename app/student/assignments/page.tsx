@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { getStudentAssignments } from "@/app/actions/student-dashboard-actions";
-import { 
-    BookOpen, 
-    Calendar, 
+import {
+    BookOpen,
+    Calendar,
     Clock,
     AlertCircle,
     Loader2,
@@ -30,25 +30,25 @@ export default function StudentAssignmentsPage() {
 
     const fetchAssignments = async () => {
         setLoading(true);
-        if(!session?.user?.id) return;
+        if (!session?.user?.id) return;
         const res = await getStudentAssignments(session.user.id);
         if (res.success && res.data) {
-             setAssignments(res.data);
+            setAssignments(res.data);
         } else {
-             setError(res.error || "Failed to load assignments.");
+            setError(res.error || "Failed to load assignments.");
         }
         setLoading(false);
     };
 
     const getRelativeDateString = (dueDate: Date) => {
         const now = new Date();
-        now.setHours(0,0,0,0);
+        now.setHours(0, 0, 0, 0);
         const due = new Date(dueDate);
-        due.setHours(0,0,0,0);
-        
+        due.setHours(0, 0, 0, 0);
+
         const diffTime = due.getTime() - now.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 0) return "Due Today";
         if (diffDays === 1) return "Due Tomorrow";
         if (diffDays > 1) return `Due in ${diffDays} days`;
@@ -57,29 +57,29 @@ export default function StudentAssignmentsPage() {
     };
 
     if (loading) {
-         return (
-             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-                 <div className="relative">
-                     <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
-                     <Loader2 className="w-12 h-12 animate-spin text-primary relative z-10" />
-                 </div>
-                 <p className="text-sm font-bold text-slate-400 animate-pulse">Loading assignments...</p>
-             </div>
-         );
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+                    <Loader2 className="w-12 h-12 animate-spin text-primary relative z-10" />
+                </div>
+                <p className="text-sm font-bold text-slate-400 animate-pulse">Loading assignments...</p>
+            </div>
+        );
     }
 
     if (error) {
-         return (
-             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-rose-50 p-6 rounded-3xl flex items-center gap-4 text-rose-700 border border-rose-200 max-w-2xl mx-auto mt-12 shadow-sm">
-                 <div className="bg-white p-3 rounded-2xl shadow-sm">
-                     <AlertCircle className="w-6 h-6 text-rose-500 shrink-0" />
-                 </div>
-                 <div>
-                     <h3 className="font-bold text-lg mb-1">Unable to load assignments</h3>
-                     <p className="text-sm font-medium opacity-80">{error}</p>
-                 </div>
-             </motion.div>
-         );
+        return (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-rose-50 p-6 rounded-3xl flex items-center gap-4 text-rose-700 border border-rose-200 max-w-2xl mx-auto mt-12 shadow-sm">
+                <div className="bg-white p-3 rounded-2xl shadow-sm">
+                    <AlertCircle className="w-6 h-6 text-rose-500 shrink-0" />
+                </div>
+                <div>
+                    <h3 className="font-bold text-lg mb-1">Unable to load assignments</h3>
+                    <p className="text-sm font-medium opacity-80">{error}</p>
+                </div>
+            </motion.div>
+        );
     }
 
     const now = new Date();
@@ -88,7 +88,7 @@ export default function StudentAssignmentsPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-slate-200"
@@ -102,7 +102,7 @@ export default function StudentAssignmentsPage() {
                         Your central hub for tracking active coursework and upcoming deadlines.
                     </p>
                 </div>
-                
+
                 <div className="flex gap-4">
                     <div className="bg-white px-6 py-5 rounded-[2rem] border border-slate-200 shadow-sm flex items-center gap-5">
                         <div className="bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20 p-3 rounded-2xl text-white">
@@ -117,7 +117,7 @@ export default function StudentAssignmentsPage() {
             </motion.div>
 
             {assignments.length === 0 ? (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-32 bg-white rounded-[3rem] border border-slate-100 shadow-sm"
@@ -130,7 +130,6 @@ export default function StudentAssignmentsPage() {
                 </motion.div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                    {/* Active Column */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-4 border-b border-slate-200 pb-4">
                             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-500/20 flex items-center justify-center text-white">
@@ -141,7 +140,7 @@ export default function StudentAssignmentsPage() {
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">To-do List</p>
                             </div>
                         </div>
-                        
+
                         {activeTasks.length === 0 ? (
                             <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] p-8 text-center">
                                 <p className="text-slate-500 font-medium">No pending tasks ahead.</p>
@@ -152,24 +151,22 @@ export default function StudentAssignmentsPage() {
                                     {activeTasks.map((task, idx) => {
                                         const dateLabel = getRelativeDateString(task.dueDate);
                                         const isToday = dateLabel === "Due Today";
-                                        
+
                                         return (
-                                            <motion.div 
+                                            <motion.div
                                                 key={task.id}
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: idx * 0.1 }}
-                                                className={`bg-white p-7 rounded-[2.5rem] border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer relative overflow-hidden ${
-                                                    isToday ? 'border-amber-200' : 'border-slate-100'
-                                                }`}
+                                                className={`bg-white p-7 rounded-[2.5rem] border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer relative overflow-hidden ${isToday ? 'border-amber-200' : 'border-slate-100'
+                                                    }`}
                                             >
                                                 {isToday && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500"></div>}
-                                                
+
                                                 <div className="flex justify-between items-start mb-5">
-                                                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${
-                                                        isToday ? 'bg-amber-100 text-amber-700' : 'bg-blue-50 text-blue-700'
-                                                    }`}>
-                                                        <Clock className="w-3.5 h-3.5" /> 
+                                                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full ${isToday ? 'bg-amber-100 text-amber-700' : 'bg-blue-50 text-blue-700'
+                                                        }`}>
+                                                        <Clock className="w-3.5 h-3.5" />
                                                         {dateLabel}
                                                     </div>
                                                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full">
@@ -179,7 +176,7 @@ export default function StudentAssignmentsPage() {
                                                 </div>
                                                 <h3 className="text-xl font-black text-slate-800 mb-3 group-hover:text-primary transition-colors pr-4">{task.title}</h3>
                                                 <p className="text-sm font-medium text-slate-500 mb-6 line-clamp-2 leading-relaxed">{task.description}</p>
-                                                
+
                                                 <div className="flex items-center gap-4 pt-5 border-t border-slate-100">
                                                     <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400 shadow-inner">
                                                         <FileText className="w-5 h-5" />
@@ -197,7 +194,6 @@ export default function StudentAssignmentsPage() {
                         )}
                     </div>
 
-                    {/* Past Due Column */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-4 border-b border-slate-200 pb-4">
                             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-400 to-rose-600 shadow-lg shadow-rose-500/20 flex items-center justify-center text-white opacity-90">
@@ -208,7 +204,7 @@ export default function StudentAssignmentsPage() {
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Missed Deadlines</p>
                             </div>
                         </div>
-                        
+
                         {pastDueTasks.length === 0 ? (
                             <div className="bg-emerald-50 border-2 border-dashed border-emerald-200 rounded-[2rem] p-8 text-center">
                                 <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
@@ -219,9 +215,9 @@ export default function StudentAssignmentsPage() {
                                 <AnimatePresence>
                                     {pastDueTasks.map((task, idx) => {
                                         const dateLabel = getRelativeDateString(task.dueDate);
-                                        
+
                                         return (
-                                            <motion.div 
+                                            <motion.div
                                                 key={task.id}
                                                 initial={{ opacity: 0, x: 20 }}
                                                 animate={{ opacity: 1, x: 0 }}
@@ -229,10 +225,10 @@ export default function StudentAssignmentsPage() {
                                                 className="bg-slate-50/50 p-7 rounded-[2.5rem] border border-rose-100 shadow-sm opacity-80 hover:opacity-100 hover:shadow-md transition-all group overflow-hidden relative"
                                             >
                                                 <div className="absolute top-0 left-0 w-1 h-full bg-rose-400"></div>
-                                                
+
                                                 <div className="flex justify-between items-start mb-5 pl-2">
                                                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-100 text-rose-700 text-[10px] font-bold uppercase tracking-widest rounded-full">
-                                                        <AlertCircle className="w-3.5 h-3.5" /> 
+                                                        <AlertCircle className="w-3.5 h-3.5" />
                                                         {dateLabel}
                                                     </div>
                                                     <div className="flex items-center gap-1.5 text-xs font-bold text-rose-500/70 bg-rose-50 px-3 py-1 rounded-full">
@@ -242,7 +238,7 @@ export default function StudentAssignmentsPage() {
                                                 </div>
                                                 <h3 className="text-xl font-bold text-slate-800 mb-3 pl-2 line-through opacity-90">{task.title}</h3>
                                                 <p className="text-sm font-medium text-slate-500 mb-6 line-clamp-2 leading-relaxed pl-2">{task.description}</p>
-                                                
+
                                                 <div className="flex items-center gap-4 pt-5 border-t border-slate-200/60 pl-2">
                                                     <div className="p-2.5 bg-white rounded-xl text-slate-400 border border-slate-100">
                                                         <FileText className="w-5 h-5" />

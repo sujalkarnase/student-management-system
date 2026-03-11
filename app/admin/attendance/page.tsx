@@ -8,38 +8,38 @@ import { useSession } from "next-auth/react";
 
 export default function AdminAttendancePage() {
     const { data: session } = useSession();
-    
-    // Filters and Metadata State
+
+
     const [loadingFilters, setLoadingFilters] = useState(true);
     const [classes, setClasses] = useState<any[]>([]);
     const [academicYear, setAcademicYear] = useState<any>(null);
-    
+
     const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
     const [selectedClassId, setSelectedClassId] = useState<string>("");
     const [selectedSectionId, setSelectedSectionId] = useState<string>("");
 
-    // Attendance Data State
+
     const [loadingData, setLoadingData] = useState(false);
     const [enrollments, setEnrollments] = useState<any[]>([]);
     const [attendanceMap, setAttendanceMap] = useState<Record<string, "PRESENT" | "ABSENT">>({});
     const [saving, setSaving] = useState(false);
-    
+
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Load Initial Filters (Classes/Sections)
+
     useEffect(() => {
         const fetchFilters = async () => {
-             const res = await getAttendanceFilters();
-             if (res.success) {
-                 setClasses(res.data || []);
-                 setAcademicYear(res.academicYear);
-             }
-             setLoadingFilters(false);
+            const res = await getAttendanceFilters();
+            if (res.success) {
+                setClasses(res.data || []);
+                setAcademicYear(res.academicYear);
+            }
+            setLoadingFilters(false);
         };
         fetchFilters();
     }, []);
 
-    // Load Attendance Data when filters are fully selected
+
     useEffect(() => {
         if (selectedDate && selectedClassId && selectedSectionId) {
             fetchAttendance();
@@ -55,15 +55,15 @@ export default function AdminAttendancePage() {
         if (res.success) {
             const data = res.data || [];
             setEnrollments(data);
-            
-            // Build the initial attendance map based on existing records or default everyone to PRESENT
+
+
             const initialMap: Record<string, "PRESENT" | "ABSENT"> = {};
             data.forEach((enr: any) => {
-                 if (enr.attendance && enr.attendance.length > 0) {
-                     initialMap[enr.id] = enr.attendance[0].status;
-                 } else {
-                     initialMap[enr.id] = "PRESENT"; // Default assuming most are present
-                 }
+                if (enr.attendance && enr.attendance.length > 0) {
+                    initialMap[enr.id] = enr.attendance[0].status;
+                } else {
+                    initialMap[enr.id] = "PRESENT";
+                }
             });
             setAttendanceMap(initialMap);
         }
@@ -78,16 +78,16 @@ export default function AdminAttendancePage() {
     };
 
     const markAll = (status: "PRESENT" | "ABSENT") => {
-         const newMap: Record<string, "PRESENT" | "ABSENT"> = {};
-         enrollments.forEach(enr => {
-             newMap[enr.id] = status;
-         });
-         setAttendanceMap(newMap);
+        const newMap: Record<string, "PRESENT" | "ABSENT"> = {};
+        enrollments.forEach(enr => {
+            newMap[enr.id] = status;
+        });
+        setAttendanceMap(newMap);
     };
 
     const handleSave = async () => {
         if (!session?.user?.id) return alert("You must be logged in to save attendance.");
-        
+
         setSaving(true);
         const records = Object.keys(attendanceMap).map(enrollmentId => ({
             enrollmentId,
@@ -95,10 +95,10 @@ export default function AdminAttendancePage() {
         }));
 
         const result = await bulkMarkAttendance(records, selectedDate, session.user.id);
-        
+
         if (result.success) {
             alert("Attendance successfully saved!");
-            fetchAttendance(); // Refresh to ensure UI matches DB exactly
+            fetchAttendance();
         } else {
             alert(result.error || "Failed to save attendance.");
         }
@@ -106,22 +106,22 @@ export default function AdminAttendancePage() {
     };
 
     const activeClass = classes.find(c => c.id === selectedClassId);
-    
-    // Derived Stats
+
+
     const totalStudents = enrollments.length;
     const presentCount = Object.values(attendanceMap).filter(s => s === "PRESENT").length;
     const absentCount = Object.values(attendanceMap).filter(s => s === "ABSENT").length;
     const attendancePercentage = totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0;
 
-    // Filtered by local search
-    const filteredEnrollments = enrollments.filter(enr => 
-        enr.student.user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+
+    const filteredEnrollments = enrollments.filter(enr =>
+        enr.student.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         enr.student.admissionNumber.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
-            {/* Header Section */}
+
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-black text-slate-800 tracking-tight">
@@ -137,7 +137,7 @@ export default function AdminAttendancePage() {
                 )}
             </div>
 
-            {/* Config & Filters */}
+
             <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
                 {loadingFilters ? (
                     <div className="flex items-center justify-center py-4 gap-3 text-slate-400">
@@ -146,7 +146,7 @@ export default function AdminAttendancePage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Date Filter */}
+
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Select Date</label>
                             <input
@@ -156,14 +156,14 @@ export default function AdminAttendancePage() {
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-bold text-slate-700 bg-slate-50"
                             />
                         </div>
-                        {/* Class Filter */}
+
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Select Class</label>
                             <select
                                 value={selectedClassId}
                                 onChange={(e) => {
                                     setSelectedClassId(e.target.value);
-                                    setSelectedSectionId(""); // Reset section when class changes
+                                    setSelectedSectionId("");
                                 }}
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-bold text-slate-700 bg-slate-50 cursor-pointer appearance-none"
                             >
@@ -173,7 +173,7 @@ export default function AdminAttendancePage() {
                                 ))}
                             </select>
                         </div>
-                        {/* Section Filter */}
+
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Select Section</label>
                             <select
@@ -192,10 +192,10 @@ export default function AdminAttendancePage() {
                 )}
             </div>
 
-            {/* Main Content Area */}
+
             {selectedDate && selectedClassId && selectedSectionId ? (
                 <>
-                    {/* Live Stats Row */}
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-center">
                             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Enrolled</span>
@@ -209,7 +209,7 @@ export default function AdminAttendancePage() {
                             <span className="text-3xl font-black text-emerald-600">{presentCount}</span>
                         </motion.div>
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm flex flex-col justify-center relative overflow-hidden">
-                             <div className="absolute top-0 right-0 w-16 h-16 bg-rose-50 rounded-bl-[100px] flex items-start justify-end p-3 pointer-events-none">
+                            <div className="absolute top-0 right-0 w-16 h-16 bg-rose-50 rounded-bl-[100px] flex items-start justify-end p-3 pointer-events-none">
                                 <XCircle className="w-5 h-5 text-rose-500" />
                             </div>
                             <span className="text-xs font-bold text-rose-600 uppercase tracking-widest mb-1">Absent</span>
@@ -221,9 +221,9 @@ export default function AdminAttendancePage() {
                         </motion.div>
                     </div>
 
-                    {/* Roster & Controls */}
+
                     <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                        {/* Toolbar */}
+
                         <div className="p-4 md:p-6 border-b border-slate-50 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="relative flex-1 max-w-sm">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -251,7 +251,7 @@ export default function AdminAttendancePage() {
                             </div>
                         </div>
 
-                        {/* Roster List */}
+
                         {loadingData ? (
                             <div className="py-24 flex flex-col items-center justify-center gap-4">
                                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -268,11 +268,11 @@ export default function AdminAttendancePage() {
                                     const status = attendanceMap[enr.id];
                                     const isPresent = status === "PRESENT";
                                     return (
-                                        <motion.div 
-                                            initial={{ opacity: 0 }} 
-                                            animate={{ opacity: 1 }} 
-                                            transition={{ delay: Math.min(idx * 0.02, 0.5) }} // Cap delay
-                                            key={enr.id} 
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: Math.min(idx * 0.02, 0.5) }}
+                                            key={enr.id}
                                             className={`p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors ${isPresent ? 'hover:bg-emerald-50/30' : 'hover:bg-rose-50/30'}`}
                                         >
                                             <div className="flex items-center gap-4">
@@ -288,7 +288,7 @@ export default function AdminAttendancePage() {
                                                 </div>
                                             </div>
 
-                                            {/* Toggle Switch */}
+
                                             <div className="flex items-center bg-slate-100/80 p-1 rounded-xl w-full md:w-auto mt-2 md:mt-0">
                                                 <button
                                                     onClick={() => toggleAttendance(enr.id, "PRESENT")}
@@ -308,18 +308,18 @@ export default function AdminAttendancePage() {
                                 })}
                             </div>
                         )}
-                        
-                        {/* Save Action Footer */}
+
+
                         {filteredEnrollments.length > 0 && (
-                             <div className="p-4 md:p-6 bg-slate-50/80 border-t border-slate-100 flex justify-end">
-                                 <button
+                            <div className="p-4 md:p-6 bg-slate-50/80 border-t border-slate-100 flex justify-end">
+                                <button
                                     onClick={handleSave}
                                     disabled={saving}
                                     className="w-full md:w-auto bg-primary text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:bg-slate-300 disabled:shadow-none"
-                                 >
+                                >
                                     {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> Save Attendance Log</>}
-                                 </button>
-                             </div>
+                                </button>
+                            </div>
                         )}
                     </div>
                 </>

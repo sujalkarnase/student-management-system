@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding Classes data...');
 
-  // Get current academic year
+
   const currentYear = await prisma.academicYear.findFirst({
     where: { isCurrent: true }
   });
@@ -15,7 +15,7 @@ async function main() {
     return;
   }
 
-  // Create Class 1
+
   const class1 = await prisma.class.upsert({
     where: { name_academicYearId: { name: '1', academicYearId: currentYear.id } },
     update: {},
@@ -40,7 +40,7 @@ async function main() {
 
   console.log(`Created Class ${class1.name} with sections and subjects.`);
 
-  // Create Class 2
+
   const class2 = await prisma.class.upsert({
     where: { name_academicYearId: { name: '2', academicYearId: currentYear.id } },
     update: {},
@@ -62,7 +62,7 @@ async function main() {
     }
   });
 
-    console.log(`Created Class ${class2.name} with sections and subjects.`);
+  console.log(`Created Class ${class2.name} with sections and subjects.`);
 
   console.log('Class Seeding Complete.');
 }

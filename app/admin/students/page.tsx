@@ -80,7 +80,7 @@ export default function AdminStudentsPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
-            {/* Header Section */}
+
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
@@ -113,7 +113,7 @@ export default function AdminStudentsPage() {
                 </div>
             </div>
 
-            {/* Students Table Section */}
+
             <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
@@ -227,7 +227,6 @@ export default function AdminStudentsPage() {
                                                                 <button
                                                                     onClick={() => {
                                                                         setActiveMenu(null);
-                                                                        // View profile logic here
                                                                     }}
                                                                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#0F172A] rounded-xl transition-all"
                                                                 >
@@ -274,7 +273,7 @@ export default function AdminStudentsPage() {
                 </div>
             </div>
 
-            {/* Registration/Edit Modal */}
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => { setIsModalOpen(false); setSelectedStudent(null); }}

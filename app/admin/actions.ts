@@ -40,13 +40,13 @@ export async function getAdminDashboardData() {
             })
         ]);
 
-        // Generate trend data for the last 6 months using actual data
+
         const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5); // Go back 5 months + current = 6 months
-        sixMonthsAgo.setDate(1); // Start from the 1st of that month
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+        sixMonthsAgo.setDate(1);
         sixMonthsAgo.setHours(0, 0, 0, 0);
 
-        // Fetch students created in the last 6 months
+
         const recentStudents = await prisma.user.findMany({
             where: {
                 role: Role.STUDENT,
@@ -59,10 +59,10 @@ export async function getAdminDashboardData() {
             }
         });
 
-        // Initialize last 6 months array with 0 counts
+
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const orderedTrendData: { name: string, year: number, month: number, newStudents: number, students: number }[] = [];
-        
+
         let cumulativeStudents = await prisma.user.count({
             where: {
                 role: Role.STUDENT,
@@ -80,28 +80,28 @@ export async function getAdminDashboardData() {
                 year: date.getFullYear(),
                 month: date.getMonth(),
                 newStudents: 0,
-                students: 0 // Will hold cumulative
+                students: 0
             });
         }
 
-        // Group by month
+
         recentStudents.forEach(student => {
             const studentMonth = student.createdAt.getMonth();
             const studentYear = student.createdAt.getFullYear();
-            
+
             const trendEntry = orderedTrendData.find(t => t.month === studentMonth && t.year === studentYear);
             if (trendEntry) {
                 trendEntry.newStudents++;
             }
         });
 
-        // Calculate cumulative totals
+
         orderedTrendData.forEach(entry => {
             cumulativeStudents += entry.newStudents;
             entry.students = cumulativeStudents;
         });
 
-        // Clean up the object to only return what is needed for the chart
+
         const finalTrendData = orderedTrendData.map(entry => ({
             name: entry.name,
             students: entry.students
@@ -114,7 +114,7 @@ export async function getAdminDashboardData() {
                     totalStudents,
                     totalTeachers,
                     activeClasses,
-                    attendanceRate: "94%", // Placeholder for now, requires complex calculation
+                    attendanceRate: "94%",
                 },
                 recentUsers: recentUsers.map(u => ({
                     id: u.id,

@@ -93,7 +93,7 @@ export default function AdminTeachersPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
-            {/* Header Section */}
+
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-black text-slate-800 tracking-tight">
@@ -110,7 +110,7 @@ export default function AdminTeachersPage() {
                 </button>
             </div>
 
-            {/* Stats Overview */}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                     { label: "Total Faculty", value: teachers.length, icon: GraduationCap, color: "bg-blue-500" },
@@ -135,9 +135,9 @@ export default function AdminTeachersPage() {
                 ))}
             </div>
 
-            {/* Filters & Table */}
+
             <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-                {/* Table Header / Search */}
+
                 <div className="p-6 border-b border-slate-50 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -151,7 +151,7 @@ export default function AdminTeachersPage() {
                     </div>
                 </div>
 
-                {/* Table Content */}
+
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -287,7 +287,7 @@ export default function AdminTeachersPage() {
                 </div>
             </div>
 
-            {/* Create/Edit Modal */}
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => { setIsModalOpen(false); setSelectedTeacher(null); }}
@@ -299,7 +299,7 @@ export default function AdminTeachersPage() {
                 />
             </Modal>
 
-            {/* Assignment Modal */}
+
             <Modal
                 isOpen={isAssignmentModalOpen}
                 onClose={() => { setIsAssignmentModalOpen(false); setSelectedTeacher(null); }}

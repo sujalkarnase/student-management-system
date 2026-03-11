@@ -12,7 +12,6 @@ export async function getTeachers(search: string = "") {
                 role: Role.TEACHER,
                 isActive: true,
                 ...(search ? {
-                    // Type bypass due to Prisma client sync issue in environment
                     OR: [
                         { name: { contains: search, mode: 'insensitive' } },
                         { email: { contains: search, mode: 'insensitive' } },
@@ -28,7 +27,6 @@ export async function getTeachers(search: string = "") {
             } as any
         });
 
-        // Transform into Teacher-centric objects
         const teachers = users
             .filter(u => u.teacher)
             .map(u => {

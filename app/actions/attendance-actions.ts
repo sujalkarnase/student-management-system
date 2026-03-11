@@ -29,7 +29,7 @@ export async function getAttendanceFilters() {
 export async function getAttendanceData(dateStr: string, classId: string, sectionId: string) {
     try {
         const date = new Date(dateStr);
-        // Normalize date to start of day for accurate comparison if needed
+
         date.setUTCHours(0, 0, 0, 0);
 
         const enrollments = await prisma.enrollment.findMany({
@@ -69,7 +69,7 @@ export async function bulkMarkAttendance(records: { enrollmentId: string, status
 
         await prisma.$transaction(async (tx) => {
             for (const record of records) {
-                // Upsert logic: if attendance exists for that day, update it, else create it.
+
                 await tx.attendance.upsert({
                     where: {
                         enrollmentId_date: {

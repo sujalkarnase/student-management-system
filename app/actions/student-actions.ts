@@ -12,7 +12,7 @@ export async function getStudents(search?: string) {
                 role: Role.STUDENT,
                 isActive: true,
                 ...(search ? {
-                    // Type bypass due to Prisma client sync issue in environment
+
                     OR: [
                         { name: { contains: search, mode: 'insensitive' } },
                         { admissionNumber: { contains: search, mode: 'insensitive' } },
@@ -43,9 +43,9 @@ export async function getStudents(search?: string) {
             } as any
         });
 
-        // Transform into Student-centric objects for the UI
+
         const students = users
-            .filter(u => u.student) // Ensure they have a student record
+            .filter(u => u.student)
             .map(u => ({
                 ...u.student,
                 user: u
@@ -70,7 +70,7 @@ export async function createStudent(formData: any) {
             phone,
             address,
             dateOfBirth,
-            enrollmentData, // Optional enrollment data
+            enrollmentData,
         } = formData;
 
         const hashedPassword = await bcrypt.hash(password || "student123", 10);
@@ -98,7 +98,7 @@ export async function createStudent(formData: any) {
                 },
             });
 
-            // If enrollment data is provided, create enrollment record
+
             if (enrollmentData && enrollmentData.classId && enrollmentData.sectionId) {
                 await tx.enrollment.create({
                     data: {
@@ -137,7 +137,7 @@ export async function updateStudent(id: string, formData: any) {
             phone,
             address,
             dateOfBirth,
-            enrollmentData, // Optional enrollment data for update
+            enrollmentData,
         } = formData;
 
         await prisma.$transaction(async (tx) => {
@@ -169,7 +169,7 @@ export async function updateStudent(id: string, formData: any) {
                 },
             });
 
-            // Handle enrollment update if data provided
+
             if (enrollmentData && enrollmentData.classId && enrollmentData.sectionId) {
                 await tx.enrollment.upsert({
                     where: {

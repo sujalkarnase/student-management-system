@@ -24,7 +24,7 @@ export default function StudentForm({ initialData, onSubmit }: StudentFormProps)
         phone: initialData?.phone || "",
         address: initialData?.address || "",
         dateOfBirth: initialData?.dateOfBirth ? new Date(initialData.dateOfBirth).toISOString().split('T')[0] : "",
-        // Integrated enrollment fields
+
         classId: initialData?.enrollments?.[0]?.classId || "",
         sectionId: initialData?.enrollments?.[0]?.sectionId || "",
         rollNumber: initialData?.enrollments?.[0]?.rollNumber?.toString() || "",
@@ -101,7 +101,6 @@ export default function StudentForm({ initialData, onSubmit }: StudentFormProps)
                     />
                 </div>
 
-                {/* Integrated Enrollment Fields Section */}
                 <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-slate-50/50 rounded-2xl border border-slate-100">
                     <div className="md:col-span-3 flex items-center gap-2 mb-2">
                         <GraduationCap className="w-4 h-4 text-primary" />
