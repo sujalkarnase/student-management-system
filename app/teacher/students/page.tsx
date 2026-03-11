@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Users, Search, Loader2, UserCircle2, AlertCircle, CalendarClock } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getTeacherStudents, getTeacherClasses } from "@/app/actions/teacher-dashboard-actions";
 
-export default function TeacherStudentsPage() {
+function TeacherStudentsContent() {
     const { data: session } = useSession();
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -255,5 +255,13 @@ export default function TeacherStudentsPage() {
                  </div>
             )}
         </div>
+    );
+}
+
+export default function TeacherStudentsPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+            <TeacherStudentsContent />
+        </Suspense>
     );
 }
